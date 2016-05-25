@@ -6,7 +6,9 @@ import Time
 type alias Model =
   { board : List (Maybe Block)
   , resolution : Maybe Window.Size
-  , mouse : Maybe Mouse.Position 
+  , mouse : Maybe Mouse.Position
+  , activeBlock : Maybe Block
+  , timeout : Float 
   } 
 
 
@@ -21,4 +23,4 @@ type Msg
   -- | MouseClick Mouse.Position
   | RotateR Mouse.Position
   | RotateL Block
-  -- | Tick Time.Time
+  | Tick Time.Time

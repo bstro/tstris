@@ -7,7 +7,7 @@ import Types exposing (..)
 
 emptyModel : Model
 emptyModel =
-  Model emptyBoard Nothing Nothing
+  Model emptyBoard Nothing Nothing Nothing 0.0
 
 
 emptyBoard : List (Maybe Block)
@@ -51,7 +51,7 @@ j =
 s : Block
 s =
   [
-             (0, 1) , (1,-1) ,
+             (0,-1) , (1,-1) ,
     (-1, 0), (0, 0)
   ]
 

@@ -26,12 +26,12 @@ subscriptions model =
     [ Window.resizes Resize 
     , Mouse.moves MouseMove
     , Mouse.downs RotateR
-    -- , AnimationFrame.diffs Tick
+    , AnimationFrame.diffs Tick
     ]
 
     
 init =
-  Model [Just z] Nothing Maybe.Nothing
+  Model [Just t] Nothing Nothing Nothing 0.0
   => Task.perform never Init Window.size
 
 
@@ -46,6 +46,15 @@ update msg model =
     -> ({ model | resolution = Just res })
     => Cmd.none
     
+    
+    Tick time
+    ->
+      let piece = Maybe.withDefault Nothing (List.head model.board)
+          rotated = rotatePiece <| Maybe.withDefault [(0,0)] piece
+      in if model.timeout < 122.34
+      then { model | board = [piece], timeout = model.timeout+time } => Cmd.none
+      else { model | board = [Just rotated], timeout = 0.0 } => Cmd.none
+        
     MouseMove pos
     -> ({ model | mouse = Just pos})
     => Cmd.none
