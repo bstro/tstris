@@ -30,7 +30,7 @@ subscriptions model =
 
     
 init =
-  (setActivePiece emptyModel (0,0) j)
+  setActivePiece emptyModel (0,0) j
   => Task.perform never Init Window.size
 
 
@@ -48,8 +48,11 @@ getPiece : Int -> Tetrimino
 getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 
+gravity : Position -> Position
+gravity (x, y) = (x, y+1)
+
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
+update msg ({level} as model) =
   case msg of
     NoOp
     -> model
@@ -59,16 +62,29 @@ update msg model =
     -> ({ model | resolution = Just res })
     => Cmd.none
     
-    Tick time ->      
-    if model.timeout < 120.0
-    then { model | timeout = model.timeout+time } => Cmd.none
-    else { model | timeout = 0.0 } =>
-      case model.board.activeBlock of
-        Just b -> Task.perform never Rotate (succeed b)
-        Nothing -> Cmd.none
+    Tick time ->
+    let
+      t = floor time
+    in
+      if model.timeout < model.level
+      then { model | timeout = model.timeout+t } => Cmd.none
+      else { model | timeout = 0 } =>
+        case model.board.activeBlock of
+          Just b -> Task.perform never Step (succeed b)
+          Nothing -> Cmd.none
+
+    Step (p, t)
+    ->
+      let c = gravity p
+      in setActivePiece model c t
+    => Cmd.none
 
     Rotate (p, t)
     -> setActivePiece model p (rotatePiece t)
+    => Cmd.none
+    
+    NextLevel
+    -> ({ model | level = level-100 })
     => Cmd.none
     
     MouseMove pos

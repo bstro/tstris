@@ -21,7 +21,8 @@ type alias Model =
   { board : Board
   , mouse : Maybe Mouse.Position  
   , resolution : Maybe Window.Size
-  , timeout : Float 
+  , timeout : Int 
+  , level : Int
   } 
 
 type Msg
@@ -29,7 +30,10 @@ type Msg
   | Init Window.Size
   | Resize Window.Size
   | MouseMove Mouse.Position
+  | Step Block
   | Rotate Block
   | Tick Time.Time
   | GetNumber
   | NewPiece Int
+  | NextLevel
+  
