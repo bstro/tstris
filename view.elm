@@ -8,7 +8,7 @@ import Dict exposing (values)
 import Color
 import Transform
 
--- import Model exposing (..)
+import Model exposing (..)
 import Types exposing (..)
 import Utilities exposing (..)
 
@@ -37,6 +37,7 @@ layout ({board, resolution, mouse} as model) =
         Just <| collage width height
              <| [ groupTransform xf (renderBoard board)
                 , group <| renderBlock board.activeBlock
+                -- , group <| renderBlock <| Just ((-4,-11), l)
                 ]
     
     Nothing -> Nothing
@@ -64,12 +65,12 @@ shape color = square |> (filled <| color)
 renderBlock : Maybe Block -> List Form
 renderBlock block =
   case block of
-    Just (p, t) ->
+    Just ((oX, oY), t) ->
       if List.length t > 1 then
         List.map (\(x, y) ->
           let
-            xx = (toFloat x) * gS
-            yy = (toFloat y) * gS
+            xx = (toFloat <| x-oX) * gS
+            yy = (toFloat <| y-oY) * gS
           in
             move (xx, yy) (shape Color.red)) t
       else [(shape Color.red)]
