@@ -1,6 +1,5 @@
 module Model exposing (..)
 
-import List exposing (repeat, concat)
 import List.Extra exposing (andThen)
 import Dict exposing (fromList)
 
@@ -13,16 +12,14 @@ emptyModel : Model
 emptyModel = Model emptyBoard Nothing Nothing 0.0
 
 
--- write a function to find number of Nothings in a row
--- if nothings.length == 0 then remove the row
--- if rowsToClear == 1, then pts, if rowsToClear == 2 then pts*2
-
-
 emptyBoard : Board
 emptyBoard =
   let lst = [1..w] `andThen` \x -> [1..h] `andThen` \y -> [(x => y => Nothing)]
-  in
-  Board (fromList lst) <| Just ((0,0) => t) 
+  in Board (fromList lst) Nothing 
+
+
+tetriminos : List Tetrimino
+tetriminos = [i,l,j,s,z,o,t] 
 
 
 i : Tetrimino

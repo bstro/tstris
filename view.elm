@@ -32,21 +32,24 @@ layout ({board, resolution, mouse} as model) =
         oX = -(toFloat w)*gS/2
         oY = -(toFloat h)*gS/2
         xf = Transform.translation oX oY
+        piece = Maybe.withDefault 
       in
         Just <| collage width height
-            <| [groupTransform xf (renderBoard board)]
+             <| [ groupTransform xf (renderBoard board)
+                , group <| renderBlock board.activeBlock
+                ]
     
     Nothing -> Nothing
     
 
-renderBoard : Board -> List Form 
+
 renderBoard {positions, activeBlock} =
   values <| Dict.map (\(r,c) v ->
     let
       y = toFloat c * gS
       x = toFloat r * gS
     in
-    move (x,y) <| group <| (showBlock v)
+    move (x,y) <| group <| (renderBlock v)
   ) positions
   
   
@@ -58,17 +61,19 @@ shape : Color.Color -> Form
 shape color = square |> (filled <| color)
 
 
-showBlock : Maybe Tetrimino -> List Form
-showBlock block =
+renderBlock : Maybe Block -> List Form
+renderBlock block =
   case block of
-    Just coords ->
-      List.map (\(x, y) ->
-        let
-          xx = (toFloat x) * gS
-          yy = (toFloat y) * gS
-        in
-          move (xx, yy) (shape Color.red)) coords          
-
+    Just (p, t) ->
+      if List.length t > 1 then
+        List.map (\(x, y) ->
+          let
+            xx = (toFloat x) * gS
+            yy = (toFloat y) * gS
+          in
+            move (xx, yy) (shape Color.red)) t
+      else [(shape Color.red)]
+                  
     Nothing -> [shape Color.gray]
     
 -- xf = Transform.translation (oX+gS/2) (oY+gS/2)
