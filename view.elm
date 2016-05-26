@@ -1,71 +1,75 @@
 module View exposing (view)
 
 import Html exposing (div, text, button, Html)
+import List exposing (foldl, foldr)
 import Element exposing (..)
 import Collage exposing (..)
-import Text exposing (..)
+import Dict exposing (values)
 import Color
 import Transform
 
-import Model exposing (..)
+-- import Model exposing (..)
 import Types exposing (..)
 import Utilities exposing (..)
 
 
-square = rect gS gS
-
-
+view : Model -> Html Msg
 view model =
   let forms = layout model
   in case forms of
     Just forms ->
       toHtml forms
       
-    Nothing -> Html.text "Nothing" 
+    Nothing ->
+      Html.text "Nothing" 
  
-  
-layout model =
+ 
+layout : Model -> Maybe Element
+layout ({board, resolution, mouse} as model) =
   case model.resolution of
     Just {width, height} ->
       let
-        oX = -(toFloat width)/2
-        oY = -(toFloat height)/2
-        forms = List.map showBlock model.board
-        -- xf = Transform.translation (oX+gS/2) (oY+gS/2)
-        -- xformed = groupTransform xf forms
+        oX = -(toFloat w)*gS/2
+        oY = -(toFloat h)*gS/2
+        xf = Transform.translation oX oY
       in
-      Just <| collage width height forms -- [xformed]
+        Just <| collage width height
+            <| [groupTransform xf (renderBoard board)]
     
     Nothing -> Nothing
-      -- collage 0 0 [showBlock Nothing]
+    
+
+renderBoard : Board -> List Form 
+renderBoard {positions, activeBlock} =
+  values <| Dict.map (\(r,c) v ->
+    let
+      y = toFloat c * gS
+      x = toFloat r * gS
+    in
+    move (x,y) <| group <| (showBlock v)
+  ) positions
+  
+  
+square : Shape
+square = rect gS gS
 
 
-stringifyCoords coords = toForm <| show (Text.fromString (toString coords)) 
+shape : Color.Color -> Form
+shape color = square |> (filled <| color)
 
 
-showBlock : Maybe Block -> Form
+showBlock : Maybe Tetrimino -> List Form
 showBlock block =
-  let shape = square |> (filled <| Color.red)
-  in
   case block of
     Just coords ->
-      group <| List.map (\(x, y) ->
+      List.map (\(x, y) ->
         let
           xx = (toFloat x) * gS
           yy = (toFloat y) * gS
-        in move (xx, yy) shape) (rotatePiece coords)          
+        in
+          move (xx, yy) (shape Color.red)) coords          
 
-    Nothing -> shape
-
-
--- showBlock : Maybe (List Block) -> List Form
--- showBlock block =
---   case block of
---     Just list ->
---       List.map (\c ->
---         square |> (filled <| Color.red) |> move (100,100)
---       ) list
-      
---     Nothing ->
---       [square |> (filled <| Color.charcoal)]
-      
+    Nothing -> [shape Color.gray]
+    
+-- xf = Transform.translation (oX+gS/2) (oY+gS/2)
+-- xformed = groupTransform xf forms

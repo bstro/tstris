@@ -1,7 +1,14 @@
 module Utilities exposing (..)
 
-import Model exposing (..)
 import Types exposing (..)
+
+w : Int
+w = 10
+
+h : Int
+h = 22
+
+gS = 10
 
 
 (=>) : a -> b -> (a , b)
@@ -16,15 +23,8 @@ getCol : Int -> Int
 getCol idx = idx // h
 
 
--- rotateMaybe piece =
---   case piece of
---     Just piece -> rotatePiece piece
---     Nothing -> [(0,0)]
+rotatePiece : Tetrimino -> Tetrimino
+rotatePiece = List.map rotate
 
 
-rotatePiece : Block -> Block
-rotatePiece piece = 
-  List.map rotate piece
-
-  
 rotate (x, y) = (-y, x)

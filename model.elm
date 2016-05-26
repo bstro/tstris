@@ -1,38 +1,38 @@
 module Model exposing (..)
 
 import List exposing (repeat, concat)
+import List.Extra exposing (andThen)
+import Dict exposing (fromList)
 
 import Types exposing (..)
+import Utilities exposing (..)
+import List.Extra exposing (andThen)
 
 
 emptyModel : Model
-emptyModel =
-  Model emptyBoard Nothing Nothing Nothing 0.0
+emptyModel = Model emptyBoard Nothing Nothing 0.0
 
 
-emptyBoard : List (Maybe Block)
-emptyBoard = concat <| repeat w <| repeat h <| Nothing 
+-- write a function to find number of Nothings in a row
+-- if nothings.length == 0 then remove the row
+-- if rowsToClear == 1, then pts, if rowsToClear == 2 then pts*2
 
 
-w : Int
-w = 10
+emptyBoard : Board
+emptyBoard =
+  let lst = [1..w] `andThen` \x -> [1..h] `andThen` \y -> [(x => y => Nothing)]
+  in
+  Board (fromList lst) <| Just ((0,0) => t) 
 
 
-h : Int
-h = 22
-
-
-gS = 10
-
-
-i : Block
+i : Tetrimino
 i =
   [
     (-1, 0) , (0, 0) , (1, 0) , (2, 0)
   ]
 
 
-l : Block
+l : Tetrimino
 l =
   [
                       (1,-1) ,
@@ -40,7 +40,7 @@ l =
   ]
 
 
-j : Block
+j : Tetrimino
 j = 
   [
     (-1,-1) ,
@@ -48,7 +48,7 @@ j =
   ]
 
 
-s : Block
+s : Tetrimino
 s =
   [
              (0,-1) , (1,-1) ,
@@ -56,7 +56,7 @@ s =
   ]
 
 
-z : Block
+z : Tetrimino
 z =
   [
     (-1,-1) , (0,-1)
@@ -64,7 +64,7 @@ z =
   ]
 
 
-o : Block
+o : Tetrimino
 o =
   [
     (0,-1) , (1,-1) ,
@@ -72,7 +72,7 @@ o =
   ]
 
 
-t: Block
+t: Tetrimino
 t =
   [
              (0,-1) ,

@@ -2,25 +2,28 @@ module Types exposing (..)
 import Window
 import Mouse
 import Time
+import Dict exposing (Dict)
 
+type alias Position = (Int, Int)
+
+type alias Tetrimino = List Position
+  
+type alias Board =
+  { positions: Dict Position (Maybe Tetrimino)
+  , activeBlock : Maybe (Position, Tetrimino) 
+  }
+  
 type alias Model =
-  { board : List (Maybe Block)
+  { board : Board
   , resolution : Maybe Window.Size
   , mouse : Maybe Mouse.Position
-  , activeBlock : Maybe Block
   , timeout : Float 
   } 
-
-
-type alias Block = List (Int, Int)
-
 
 type Msg
   = NoOp
   | Init Window.Size
   | Resize Window.Size
   | MouseMove Mouse.Position
-  -- | MouseClick Mouse.Position
-  | RotateR Mouse.Position
-  | RotateL Block
+  | Rotate Tetrimino
   | Tick Time.Time
