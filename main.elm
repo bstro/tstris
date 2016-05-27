@@ -37,13 +37,8 @@ init =
 
 
 setActivePiece : Model -> Position -> Tetrimino -> Model
-setActivePiece model p t =
-  let
-    board = model.board
-    activeBlock = board.activeBlock
-    newBoard = { board | activeBlock = Just (p, t) }
-  in
-    { model | board = newBoard }
+setActivePiece ({board, activeBlock} as model) p t =
+  { model | activeBlock = Just (p, t) }
   
 
 getPiece : Int -> Tetrimino
@@ -58,7 +53,7 @@ gravity (x, y) =
   -- else 
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg ({level} as model) =
+update msg ({board, activeBlock, level} as model) =
   case msg of
     NoOp
     -> model
@@ -75,7 +70,7 @@ update msg ({level} as model) =
       if model.timeout < model.level
       then { model | timeout = model.timeout+t } => Cmd.none
       else { model | timeout = 0 } =>
-        case model.board.activeBlock of
+        case model.activeBlock of
           Just b -> Task.perform never Step (succeed b)
           Nothing -> Cmd.none
 
@@ -83,14 +78,10 @@ update msg ({level} as model) =
     ->
       let 
         c = gravity p
-        next = setActivePiece model c t
+        ({activeBlock} as next) = setActivePiece model c t
         new = setActivePiece model
-        {board} = model
-        {positions, activeBlock} = board
-        -- newPositions = 
-      in
-      
-      case next.board.activeBlock of
+      in 
+      case next.activeBlock of
         Just ((x,y), t) ->
           if y < h then next => Cmd.none 
           else model => Cmd.none
@@ -100,9 +91,9 @@ update msg ({level} as model) =
 
 
     KeyDown code ->
-      case model.board.activeBlock of
+      case model.activeBlock of
         Just ((x,y), t) ->
-          let foo =
+          let next =
             case code of
               37 -> setActivePiece model (x-1, y) t -- l
               38 -> setActivePiece model (x, y) (rotatePiece t) -- u
@@ -111,12 +102,10 @@ update msg ({level} as model) =
               32 -> setActivePiece model (x, y+1) t -- sp
               _  -> model
               
-          in foo => Cmd.none
+          in next => Cmd.none
           
         Nothing -> model => Cmd.none
         
-      
-
     Rotate (p, t)
     -> setActivePiece model p (rotatePiece t)
     => Cmd.none

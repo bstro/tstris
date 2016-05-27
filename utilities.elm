@@ -1,5 +1,8 @@
 module Utilities exposing (..)
 
+import Collage exposing (rect, filled, Form, Shape)
+import Color exposing (..)
+
 import Types exposing (..)
 
 w : Int
@@ -9,6 +12,9 @@ h : Int
 h = 22
 
 gS = 10
+
+
+rotate (x, y) = (-y, x)
 
 
 (=>) : a -> b -> (a , b)
@@ -27,4 +33,9 @@ rotatePiece : Tetrimino -> Tetrimino
 rotatePiece = List.map rotate
 
 
-rotate (x, y) = (-y, x)
+square : Shape
+square = rect gS gS
+
+
+shape : Color.Color -> Form
+shape color = square |> (filled <| color)

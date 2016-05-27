@@ -15,17 +15,17 @@ import Utilities exposing (..)
 
 view : Model -> Html Msg
 view model =
-  let forms = layout model
-  in case forms of
-    Just forms ->
-      toHtml forms
+  let element = layout model
+  in case element of
+    Just element ->
+      toHtml element
       
     Nothing ->
       Html.text "Nothing" 
  
  
 layout : Model -> Maybe Element
-layout ({board, resolution, mouse} as model) =
+layout ({board, activeBlock, resolution, mouse} as model) =
   case model.resolution of
     Just {width, height} ->
       let
@@ -36,32 +36,23 @@ layout ({board, resolution, mouse} as model) =
       in
         Just <| collage width height
              <| [ groupTransform xf (renderBoard board)
-                , group <| renderBlock board.activeBlock
-                -- , group <| renderBlock <| Just ((-4,-11), l)
+                , group <| renderBlock activeBlock
                 ]
     
     Nothing -> Nothing
     
 
-
-renderBoard {positions, activeBlock} =
+renderBoard : Board -> List Form
+renderBoard board =
   values <| Dict.map (\(r,c) v ->
     let
       y = (toFloat c * gS)
       x = (toFloat r * gS)
     in
     move (x,y) <| group <| (renderBlock v)
-  ) positions
+  ) board
   
   
-square : Shape
-square = rect gS gS
-
-
-shape : Color.Color -> Form
-shape color = square |> (filled <| color)
-
-
 renderBlock : Maybe Block -> List Form
 renderBlock block =
   case block of

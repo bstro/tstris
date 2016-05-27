@@ -9,13 +9,11 @@ import List.Extra exposing (andThen)
 
 
 emptyModel : Model
-emptyModel = Model emptyBoard Nothing Nothing 0 500
+emptyModel = Model emptyBoard Nothing Nothing Nothing 0 500
 
 
 emptyBoard : Board
-emptyBoard =
-  let lst = [1..w] `andThen` \x -> [1..h] `andThen` \y -> [(x => y => Nothing)]
-  in Board (fromList lst) Nothing 
+emptyBoard = fromList <| [1..w] `andThen` \x -> [1..h] `andThen` \y -> [(x => y => Nothing)] 
 
 
 tetriminos : List Tetrimino
