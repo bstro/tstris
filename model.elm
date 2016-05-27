@@ -9,7 +9,7 @@ import List.Extra exposing (andThen)
 
 
 emptyModel : Model
-emptyModel = Model emptyBoard Nothing Nothing 0 500
+emptyModel = Model emptyBoard Nothing Nothing 0 100
 
 
 emptyBoard : Board

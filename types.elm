@@ -7,6 +7,8 @@ import Dict exposing (Dict)
 
 type alias Position = (Int, Int)
 
+type alias Positions = Dict Position (Maybe Tetrimino)
+
 type alias Tetrimino = List (Int, Int)
   
 type alias Block = (Position, Tetrimino)
@@ -14,7 +16,7 @@ type alias Block = (Position, Tetrimino)
 type alias Brick = Int
  
 type alias Board =
-  { positions: Dict Position (Maybe Brick)
+  { positions: Positions
   , activeBlock : Maybe Block
   }
   

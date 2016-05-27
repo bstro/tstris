@@ -7,6 +7,7 @@ import Basics.Extra exposing (never)
 import List.Extra exposing (getAt)
 import AnimationFrame
 import Random
+import Dict
 
 import View exposing (view)
 import Types exposing (..)
@@ -45,6 +46,20 @@ setActivePiece model p t =
   in
     { model | board = newBoard }
   
+  
+-- this takes block-local coordinates and turns them into board coordinates
+blockToBoard : Position -> Tetrimino -> Positions -> Positions
+blockToBoard (gX, gY) t pos =
+  let
+    globalCoords = List.map (\(lX,lY) -> (lX + gX, lY + gY)) t
+    loop pos list =
+      case list of
+        x :: xs -> Dict.insert x (Just t) pos
+        [] -> pos
+
+  in loop pos globalCoords
+     
+
 
 getPiece : Int -> Tetrimino
 getPiece x = Maybe.withDefault i (getAt x tetriminos)
@@ -52,10 +67,7 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 gravity : Position -> Position
 gravity (x, y) =
-  -- let foo = Debug.log "foo" (y) in
   (x, y+1)
-  -- if y < h then (x, 0)
-  -- else 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg ({level} as model) =
@@ -87,14 +99,21 @@ update msg ({level} as model) =
         new = setActivePiece model
         {board} = model
         {positions, activeBlock} = board
-        -- newPositions = 
-      in
-      
-      case next.board.activeBlock of
+      in case next.board.activeBlock of
         Just ((x,y), t) ->
-          if y < h then next => Cmd.none 
-          else model => Cmd.none
-          -- else ADD CURRENT PIECE TO POSITIONS => THEN GET NEW PIECE
+          if y < h then
+            next => Cmd.none 
+          else
+            let
+              newBoard =
+                { board
+                | activeBlock = Nothing
+                , positions = blockToBoard (x,y) t positions
+                }
+                
+            in { model | board = newBoard } 
+            => Task.perform never (\t -> RandomPiece) (succeed 42)
+          
           
         Nothing -> model => Cmd.none
 
