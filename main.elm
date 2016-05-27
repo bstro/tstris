@@ -33,7 +33,7 @@ subscriptions model =
 
     
 init =
-  setActivePiece emptyModel (0,0) z
+  setActivePiece emptyModel (22,-3) t
   => Task.perform never Init Window.size
 
 
@@ -70,7 +70,7 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 
 gravity : Position -> Position
-gravity (x, y) = (x, y)--y-1)
+gravity (r, c) = (r-1, c)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -121,23 +121,23 @@ update msg ({board, activeBlock, level} as model) =
 
     KeyDown code ->
       case model.activeBlock of
-        Just ((x,y), t) ->
+        Just ((r,c), t) ->
           let next =
             case code of
               37 ->
-                setActivePiece model (x-1, y) t
+                setActivePiece model (r, c-1) t
                 
               38 -> 
-                setActivePiece model (x  , y) (List.map rotateR t)
+                setActivePiece model (r, c) (List.map rotateR t)
                 
               39 -> 
-                setActivePiece model (x+1, y) t
+                setActivePiece model (r, c+1) t
                 
               40 -> 
-                setActivePiece model (x  , y) (List.map rotateL t)
+                setActivePiece model (r, c) (List.map rotateL t)
                 
               32 ->
-                let tmp = setActivePiece model (x  , y-1) t -- sp
+                let tmp = setActivePiece model (r-1, c) t -- sp
                 in  { tmp | skipNextTick = True }
                 
               _  -> 

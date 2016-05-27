@@ -1,11 +1,11 @@
 module View exposing (view)
 
 import Html exposing (div, text, button, Html)
-import List exposing (foldl, foldr)
-import Element exposing (..)
+-- import List exposing (foldl, foldr)
+import Element exposing (Element, toHtml)
 import Collage exposing (..)
 import Dict exposing (values)
-import Color
+import Color exposing (..)
 import Transform
 import Text
 
@@ -23,65 +23,57 @@ view model =
       
     Nothing ->
       Html.text "Nothing" 
- 
+
  
 layout : Model -> Maybe Element
-layout ({board, activeBlock, resolution, mouse} as model) =
-  case model.resolution of
+layout ({board, activeBlock, resolution} as model) =
+  case resolution of
     Just {width, height} ->
       let
-        oX = -(toFloat w)*gS/2
-        oY = -(toFloat h)*gS/2
+        forms = group <| renderBoard board
+        oX = toFloat -(gS*w)/2
+        oY = toFloat -(gS*h)/2
         xf = Transform.translation oX oY
-        piece = Maybe.withDefault 
+        activeForm = renderActiveBlock activeBlock
+        layers = [forms, activeForm]
       in
-        Just <| collage width height
-             <| [ groupTransform xf (renderBoard board)
-                -- , groupTransform 
-                , group <| renderBlock activeBlock
-                ]
-    
-    Nothing -> Nothing
-    
+      Just <| collage width height [Collage.move (oX, oY) <| group <| layers] 
+      
+    _ -> Nothing
+
+
+localToGlobalXY (lX, lY) (gX, gY) = (lX+gX , lY+gY)
+
+
+renderBlock : Position -> Block -> Color -> Form
+renderBlock ((gX, gY) as gXY) (_, points) color =
+  let
+    globals = List.map (\lXY -> localToGlobalXY lXY gXY) points
+    forms = List.map (\(r,c) ->
+      let
+        x = toFloat c*gS
+        y = toFloat r*gS
+      -- in move (x,y) <| toForm <| Element.leftAligned <| Text.style type1 <| Text.fromString (toString r ++ ":" ++ toString c)
+      in move (x,y) <| shape color
+    ) globals
+  in 
+  group forms
+  -- move (xx,yy) <| shape color
+
+
+renderActiveBlock : Maybe Block -> Form
+renderActiveBlock block =
+  case block of
+    Just (((x,y), t) as v) -> renderBlock (x,y) v red 
+    Nothing -> Collage.toForm Element.empty
+
 
 renderBoard : Board -> List Form
 renderBoard board =
-  values <| Dict.map (\(r,c) v ->
-    let
-      x = (toFloat r * gS)
-      y = (toFloat c * gS)
-      g = group <| renderBlock v
-      t = Collage.toForm (show (x,y))
-      i = group [g, t]
-    in
-    move (x,y) <| i
-  ) board
-  
-  
-renderBlock : Maybe Block -> List Form
-renderBlock block =
-  case block of
-    Just ((oX, oY), t) ->
-      let
-        f = 
-          if List.length t > 1 then
-            List.map (\(x, y) ->
-              let
-                xx = (toFloat <| x) * gS
-                yy = (toFloat <| y) * gS
-              in
-                move (xx, yy) (Collage.toForm (show (x,y)))) t
-                -- move (xx, yy) (shape Color.orange)) t
-                
-          else [(shape Color.red)]
-        
-        nX = (toFloat oX)*gS
-        nY = (toFloat (oY + h//2))*gS
-        xf = Transform.translation nX nY
-
-      in [groupTransform xf f]
-                  
-    Nothing -> [shape Color.gray]
-    
--- xf = Transform.translation (oX+gS/2) (oY+gS/2)
--- xformed = groupTransform xf forms
+  let
+    cellToForm gXY mT =
+      case mT of
+        Just block -> renderBlock gXY block red
+        Nothing -> renderBlock gXY (gXY, [(0,0)]) gray
+  in
+  values <| Dict.map cellToForm board

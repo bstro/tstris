@@ -13,8 +13,11 @@ emptyModel = Model emptyBoard Nothing Nothing Nothing 0 500 False
 
 
 emptyBoard : Board
-emptyBoard = fromList <| [1..w] `andThen` \x -> [1..h] `andThen` \y -> [(x => y => Nothing)] 
-
+emptyBoard =
+  let 
+    b = fromList <| [0..h] `andThen` \x -> [0..w] `andThen` \y -> [(x => y => Nothing)]
+    debug = Debug.log "b is" b 
+  in b
 
 tetriminos : List Tetrimino
 tetriminos = [i,l,j,s,z,o,t] 

@@ -12,8 +12,6 @@ type alias Tetrimino = List (Int, Int)
 type alias Block = (Position, Tetrimino)
  
 type alias Board = Dict Position (Maybe Block)
-
-type alias Brick = Int
   
 type alias Model =
   { board : Board

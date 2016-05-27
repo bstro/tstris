@@ -2,16 +2,24 @@ module Utilities exposing (..)
 
 import Collage exposing (rect, filled, Form, Shape)
 import Color exposing (..)
+import Text
 
 import Types exposing (..)
 
-w : Int
-w = 10
+type1 =
+  { typeface = [ "Courier" ]
+  , height   = Just 6
+  , color    = black
+  , bold     = True
+  , italic   = False
+  , line     = Just Text.Under
+  }
 
-h : Int
-h = 22
+w = 10 -- + 2 -- 2 extra for borders
 
-gS = 30
+h = 22 -- + 2 -- 2 extra for borders
+
+gS = 20
 
 rotateR (x, y) = (-y, x)
 
