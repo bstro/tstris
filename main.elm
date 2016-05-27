@@ -32,7 +32,7 @@ subscriptions model =
 
     
 init =
-  setActivePiece emptyModel (0,0) j
+  setActivePiece emptyModel (0,0) t
   => Task.perform never Init Window.size
 
 
@@ -46,10 +46,8 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 
 gravity : Position -> Position
-gravity (x, y) =
-  -- let foo = Debug.log "foo" (y) in
-  -- (x, y+1)
-  (x, y)
+gravity (x, y) = (x, y-1)
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg ({board, activeBlock, level} as model) =
@@ -75,18 +73,21 @@ update msg ({board, activeBlock, level} as model) =
 
     Step (p, t)
     ->
-      let 
-        c = gravity p
-        ({activeBlock} as next) = setActivePiece model c t
-        new = setActivePiece model
-      in 
-      case next.activeBlock of
-        Just ((x,y), t) ->
-          if y < h then next => Cmd.none 
-          else model => Cmd.none
-          -- else ADD CURRENT PIECE TO POSITIONS => THEN GET NEW PIECE
-          
-        Nothing -> model => Cmd.none
+      case model.skipNextTick of
+        True -> { model | skipNextTick = False } => Cmd.none
+        False ->
+          let 
+            c = gravity p
+            ({activeBlock} as next) = setActivePiece model c t
+            new = setActivePiece model
+          in 
+          case next.activeBlock of
+            Just ((x,y), t) ->
+              let debug = Debug.log "y < h : " (y,h) in
+              if abs y < h then next => Cmd.none 
+              else { model | activeBlock = Nothing } => Cmd.none
+
+            Nothing -> model => Cmd.none
 
 
     KeyDown code ->
@@ -95,10 +96,12 @@ update msg ({board, activeBlock, level} as model) =
           let next =
             case code of
               37 -> setActivePiece model (x-1, y) t -- l
-              38 -> setActivePiece model (x, y) (List.map rotateR t) -- u
+              38 -> setActivePiece model (x  , y) (List.map rotateR t) -- u
               39 -> setActivePiece model (x+1, y) t -- r
-              40 -> setActivePiece model (x, y+1) (List.map rotateL t) -- d
-              32 -> setActivePiece model (x, y+1) t -- sp
+              40 -> setActivePiece model (x  , y) (List.map rotateL t) -- d
+              32 ->
+                let tmp = setActivePiece model (x  , y-1) t -- sp
+                in  { tmp | skipNextTick = True }
               _  -> model
               
           in next => Cmd.none

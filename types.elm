@@ -20,6 +20,7 @@ type alias Model =
   , resolution : Maybe Window.Size
   , timeout : Int 
   , level : Int
+  , skipNextTick : Bool
   } 
 
 type Msg

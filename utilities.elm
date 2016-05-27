@@ -13,7 +13,9 @@ h = 22
 
 gS = 10
 
+
 rotateR (x, y) = (-y, x)
+
 
 rotateL (x, y) = (y, -x)
 

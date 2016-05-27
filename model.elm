@@ -9,7 +9,7 @@ import List.Extra exposing (andThen)
 
 
 emptyModel : Model
-emptyModel = Model emptyBoard Nothing Nothing Nothing 0 500
+emptyModel = Model emptyBoard Nothing Nothing Nothing 0 500 False
 
 
 emptyBoard : Board
@@ -62,8 +62,8 @@ z =
 o : Tetrimino
 o =
   [
-    (0,-1) , (1,-1) ,
-    (0, 0) , (1, 0)
+    (-1,-1) ,  (0,-1) ,
+    (-1, 0) ,  (0, 0)
   ]
 
 

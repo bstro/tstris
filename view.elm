@@ -36,6 +36,7 @@ layout ({board, activeBlock, resolution, mouse} as model) =
       in
         Just <| collage width height
              <| [ groupTransform xf (renderBoard board)
+                -- , groupTransform 
                 , group <| renderBlock activeBlock
                 ]
     
@@ -67,8 +68,8 @@ renderBlock block =
               in
                 move (xx, yy) (shape Color.orange)) t
           else [(shape Color.red)]
-        nX = (toFloat (-3+oX))*gS
-        nY = (toFloat (11-oY))*gS
+        nX = (toFloat oX)*gS
+        nY = (toFloat (oY + h//2))*gS
         xf = Transform.translation nX nY
 
       in [groupTransform xf f]
