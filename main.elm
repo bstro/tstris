@@ -7,6 +7,7 @@ import Basics.Extra exposing (never)
 import List.Extra exposing (getAt)
 import AnimationFrame
 import Random
+import Dict
 
 import View exposing (view)
 import Types exposing (..)
@@ -32,12 +33,35 @@ subscriptions model =
 
     
 init =
-  setActivePiece emptyModel (0,0) t
+  setActivePiece emptyModel (0,0) z
   => Task.perform never Init Window.size
 
 
+localToGlobal : Position -> Position -> Position
+localToGlobal (lX, lY) (gX, gY) = (lX + gX, lY + gY)
+
+-- iterate though (t) on block
+-- for each Int,Int, add it to p
+-- then insert p on board, board is accumulator
+
+setPiece : Board -> Block -> Board
+setPiece b (gXY, t) =
+  let loop acc list =
+    case list of
+      lXY :: xs ->
+        let
+          newCoords = localToGlobal lXY gXY
+          newBlock = (newCoords, [(0,0)]) 
+        in
+        loop (Dict.insert newCoords (Just newBlock) b) xs 
+        
+      [] -> acc
+      
+  in loop b t
+
+
 setActivePiece : Model -> Position -> Tetrimino -> Model
-setActivePiece ({board, activeBlock} as model) p t =
+setActivePiece ({activeBlock} as model) p t =
   { model | activeBlock = Just (p, t) }
   
 
@@ -46,7 +70,7 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 
 gravity : Position -> Position
-gravity (x, y) = (x, y-1)
+gravity (x, y) = (x, y)--y-1)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -81,11 +105,16 @@ update msg ({board, activeBlock, level} as model) =
             ({activeBlock} as next) = setActivePiece model c t
             new = setActivePiece model
           in 
+          
           case next.activeBlock of
-            Just ((x,y), t) ->
-              let debug = Debug.log "y < h : " (y,h) in
-              if abs y < h then next => Cmd.none 
-              else { model | activeBlock = Nothing } => Cmd.none
+            Just (((x,y), t) as block) ->
+              if abs y < h then next => Cmd.none
+              
+              else 
+                { model 
+                | board = (setPiece board block)
+                , activeBlock = Nothing
+                } => Cmd.none
 
             Nothing -> model => Cmd.none
 
@@ -95,14 +124,24 @@ update msg ({board, activeBlock, level} as model) =
         Just ((x,y), t) ->
           let next =
             case code of
-              37 -> setActivePiece model (x-1, y) t -- l
-              38 -> setActivePiece model (x  , y) (List.map rotateR t) -- u
-              39 -> setActivePiece model (x+1, y) t -- r
-              40 -> setActivePiece model (x  , y) (List.map rotateL t) -- d
+              37 ->
+                setActivePiece model (x-1, y) t
+                
+              38 -> 
+                setActivePiece model (x  , y) (List.map rotateR t)
+                
+              39 -> 
+                setActivePiece model (x+1, y) t
+                
+              40 -> 
+                setActivePiece model (x  , y) (List.map rotateL t)
+                
               32 ->
                 let tmp = setActivePiece model (x  , y-1) t -- sp
                 in  { tmp | skipNextTick = True }
-              _  -> model
+                
+              _  -> 
+                model
               
           in next => Cmd.none
           

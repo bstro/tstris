@@ -7,6 +7,7 @@ import Collage exposing (..)
 import Dict exposing (values)
 import Color
 import Transform
+import Text
 
 import Model exposing (..)
 import Types exposing (..)
@@ -47,10 +48,13 @@ renderBoard : Board -> List Form
 renderBoard board =
   values <| Dict.map (\(r,c) v ->
     let
-      y = (toFloat c * gS)
       x = (toFloat r * gS)
+      y = (toFloat c * gS)
+      g = group <| renderBlock v
+      t = Collage.toForm (show (x,y))
+      i = group [g, t]
     in
-    move (x,y) <| group <| (renderBlock v)
+    move (x,y) <| i
   ) board
   
   
@@ -66,8 +70,11 @@ renderBlock block =
                 xx = (toFloat <| x) * gS
                 yy = (toFloat <| y) * gS
               in
-                move (xx, yy) (shape Color.orange)) t
+                move (xx, yy) (Collage.toForm (show (x,y)))) t
+                -- move (xx, yy) (shape Color.orange)) t
+                
           else [(shape Color.red)]
+        
         nX = (toFloat oX)*gS
         nY = (toFloat (oY + h//2))*gS
         xf = Transform.translation nX nY

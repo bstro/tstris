@@ -11,14 +11,11 @@ w = 10
 h : Int
 h = 22
 
-gS = 10
-
+gS = 30
 
 rotateR (x, y) = (-y, x)
 
-
 rotateL (x, y) = (y, -x)
-
 
 (=>) : a -> b -> (a , b)
 (=>) = (,)
