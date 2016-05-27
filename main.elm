@@ -48,9 +48,8 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 gravity : Position -> Position
 gravity (x, y) =
   -- let foo = Debug.log "foo" (y) in
-  (x, y+1)
-  -- if y < h then (x, 0)
-  -- else 
+  -- (x, y+1)
+  (x, y)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg ({board, activeBlock, level} as model) =
@@ -96,9 +95,9 @@ update msg ({board, activeBlock, level} as model) =
           let next =
             case code of
               37 -> setActivePiece model (x-1, y) t -- l
-              38 -> setActivePiece model (x, y) (rotatePiece t) -- u
+              38 -> setActivePiece model (x, y) (List.map rotateR t) -- u
               39 -> setActivePiece model (x+1, y) t -- r
-              40 -> setActivePiece model (x, y+1) t -- d
+              40 -> setActivePiece model (x, y+1) (List.map rotateL t) -- d
               32 -> setActivePiece model (x, y+1) t -- sp
               _  -> model
               
@@ -106,8 +105,12 @@ update msg ({board, activeBlock, level} as model) =
           
         Nothing -> model => Cmd.none
         
-    Rotate (p, t)
-    -> setActivePiece model p (rotatePiece t)
+    RotateR (p, t)
+    -> setActivePiece model p (List.map rotateR t)
+    => Cmd.none
+    
+    RotateL (p, t)
+    -> setActivePiece model p (List.map rotateL t)
     => Cmd.none
     
     NextLevel

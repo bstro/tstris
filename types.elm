@@ -29,7 +29,8 @@ type Msg
   | MouseMove Mouse.Position
   | KeyDown KeyCode
   | Step Block
-  | Rotate Block
+  | RotateL Block
+  | RotateR Block
   | Tick Time.Time
   | RandomPiece
   | NewPiece Int

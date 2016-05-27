@@ -13,8 +13,9 @@ h = 22
 
 gS = 10
 
+rotateR (x, y) = (-y, x)
 
-rotate (x, y) = (-y, x)
+rotateL (x, y) = (y, -x)
 
 
 (=>) : a -> b -> (a , b)
@@ -29,8 +30,8 @@ getCol : Int -> Int
 getCol idx = idx // h
 
 
-rotatePiece : Tetrimino -> Tetrimino
-rotatePiece = List.map rotate
+-- rotatePiece : Tetrimino -> Tetrimino
+-- rotatePiece = List.map rotate
 
 
 square : Shape
