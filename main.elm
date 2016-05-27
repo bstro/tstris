@@ -1,6 +1,7 @@
 import Html.App as Html
 import Window
 import Mouse
+import Keyboard
 import Task exposing (succeed)
 import Basics.Extra exposing (never)
 import List.Extra exposing (getAt)
@@ -26,6 +27,7 @@ subscriptions model =
     [ Window.resizes Resize 
     , Mouse.moves MouseMove
     , AnimationFrame.diffs Tick
+    , Keyboard.downs KeyDown
     ]
 
     
@@ -50,7 +52,7 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 gravity : Position -> Position
 gravity (x, y) =
-  let foo = Debug.log "foo" (y) in
+  -- let foo = Debug.log "foo" (y) in
   (x, y+1)
   -- if y < h then (x, 0)
   -- else 
@@ -95,6 +97,24 @@ update msg ({level} as model) =
           -- else ADD CURRENT PIECE TO POSITIONS => THEN GET NEW PIECE
           
         Nothing -> model => Cmd.none
+
+
+    KeyDown code ->
+      case model.board.activeBlock of
+        Just ((x,y), t) ->
+          let foo =
+            case code of
+              37 -> setActivePiece model (x-1, y) t -- l
+              38 -> setActivePiece model (x, y) (rotatePiece t) -- u
+              39 -> setActivePiece model (x+1, y) t -- r
+              40 -> setActivePiece model (x, y+1) t -- d
+              32 -> setActivePiece model (x, y+1) t -- sp
+              _  -> model
+              
+          in foo => Cmd.none
+          
+        Nothing -> model => Cmd.none
+        
       
 
     Rotate (p, t)

@@ -1,5 +1,6 @@
 module Types exposing (..)
 import Window
+import Keyboard exposing (KeyCode)
 import Mouse
 import Time
 import Dict exposing (Dict)
@@ -30,6 +31,7 @@ type Msg
   | Init Window.Size
   | Resize Window.Size
   | MouseMove Mouse.Position
+  | KeyDown KeyCode
   | Step Block
   | Rotate Block
   | Tick Time.Time
