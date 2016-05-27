@@ -10,10 +10,10 @@ type alias Tetrimino = List (Int, Int)
   
 type alias Block = (Position, Tetrimino)
 
--- type alias Brick = Int
+type alias Brick = Int
  
 type alias Board =
-  { positions: Dict Position (Maybe Block)
+  { positions: Dict Position (Maybe Brick)
   , activeBlock : Maybe Block
   }
   
@@ -33,7 +33,7 @@ type Msg
   | Step Block
   | Rotate Block
   | Tick Time.Time
-  | GetNumber
+  | RandomPiece
   | NewPiece Int
   | NextLevel
   

@@ -47,8 +47,8 @@ layout ({board, resolution, mouse} as model) =
 renderBoard {positions, activeBlock} =
   values <| Dict.map (\(r,c) v ->
     let
-      y = toFloat c * gS
-      x = toFloat r * gS
+      y = (toFloat c * gS)
+      x = (toFloat r * gS)
     in
     move (x,y) <| group <| (renderBlock v)
   ) positions
@@ -66,14 +66,21 @@ renderBlock : Maybe Block -> List Form
 renderBlock block =
   case block of
     Just ((oX, oY), t) ->
-      if List.length t > 1 then
-        List.map (\(x, y) ->
-          let
-            xx = (toFloat <| x-oX) * gS
-            yy = (toFloat <| y-oY) * gS
-          in
-            move (xx, yy) (shape Color.red)) t
-      else [(shape Color.red)]
+      let
+        f = 
+          if List.length t > 1 then
+            List.map (\(x, y) ->
+              let
+                xx = (toFloat <| x) * gS
+                yy = (toFloat <| y) * gS
+              in
+                move (xx, yy) (shape Color.orange)) t
+          else [(shape Color.red)]
+        nX = (toFloat (-3+oX))*gS
+        nY = (toFloat (11-oY))*gS
+        xf = Transform.translation nX nY
+
+      in [groupTransform xf f]
                   
     Nothing -> [shape Color.gray]
     

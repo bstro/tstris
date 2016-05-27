@@ -49,7 +49,11 @@ getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 
 gravity : Position -> Position
-gravity (x, y) = (x, y+1)
+gravity (x, y) =
+  let foo = Debug.log "foo" (y) in
+  (x, y+1)
+  -- if y < h then (x, 0)
+  -- else 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg ({level} as model) =
@@ -64,7 +68,7 @@ update msg ({level} as model) =
     
     Tick time ->
     let
-      t = floor time
+      t = round time
     in
       if model.timeout < model.level
       then { model | timeout = model.timeout+t } => Cmd.none
@@ -75,9 +79,23 @@ update msg ({level} as model) =
 
     Step (p, t)
     ->
-      let c = gravity p
-      in setActivePiece model c t
-    => Cmd.none
+      let 
+        c = gravity p
+        next = setActivePiece model c t
+        new = setActivePiece model
+        {board} = model
+        {positions, activeBlock} = board
+        -- newPositions = 
+      in
+      
+      case next.board.activeBlock of
+        Just ((x,y), t) ->
+          if y < h then next => Cmd.none 
+          else model => Cmd.none
+          -- else ADD CURRENT PIECE TO POSITIONS => THEN GET NEW PIECE
+          
+        Nothing -> model => Cmd.none
+      
 
     Rotate (p, t)
     -> setActivePiece model p (rotatePiece t)
@@ -95,7 +113,7 @@ update msg ({level} as model) =
     -> ({ model | resolution = Just newRes })
     => Cmd.none
 
-    GetNumber
+    RandomPiece
     -> model
     => (Random.generate NewPiece (Random.int 0 6))
 
