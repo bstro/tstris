@@ -26,7 +26,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
     [ Window.resizes Resize 
-    , Mouse.moves MouseMove
+    -- , Mouse.moves MouseMove
     , AnimationFrame.diffs Tick
     , Keyboard.downs KeyDown
     ]
@@ -41,7 +41,6 @@ setPiece : Board -> Block -> Board
 setPiece board (gXY, t) =
   let 
     globals = List.map (\lXY -> localToGlobalXY lXY gXY) t
-    debug = Debug.log "globals are : " globals
     loop acc list =
       case list of
         pos :: xs -> loop (Dict.insert pos (Just (pos, [(0,0)])) acc) xs
@@ -49,22 +48,8 @@ setPiece board (gXY, t) =
   in
     let
       newBoard = loop board globals
-      debug = Debug.log "newBoard is : " newBoard 
     in newBoard 
   
-  -- let loop acc list =
-  --   case list of
-  --     lXY :: xs ->
-  --       let
-  --         newCoords = localToGlobalXY lXY gXY
-  --         newBlock = (newCoords, [(0,0)]) 
-  --       in
-  --       loop (Dict.insert newCoords (Just newBlock) b) xs 
-        
-  --     [] -> acc
-      
-  -- in loop b t
-
 
 setActivePiece : Model -> Position -> Tetrimino -> Model
 setActivePiece ({activeBlock} as model) p t =
@@ -113,16 +98,13 @@ update msg ({board, activeBlock, level, pieces} as model) =
           
           case next.activeBlock of
             Just (((r, c), t) as block) ->
-              -- if abs y < h then next => Cmd.none
-              if willItCollide board block
+              if willItCollide board pieces block
               then
                 { model 
-                | pieces = (setPiece pieces block)
+                | pieces = (setPiece pieces (p, t))
                 , activeBlock = Nothing
-                } => Task.perform never (\_ -> RandomPiece) (succeed 42)                
-              else
-                next => Cmd.none
-
+                } => Task.perform never (\_ -> RandomPiece) (succeed always)                
+              else next => Cmd.none
 
             Nothing -> model => Cmd.none
 
@@ -146,6 +128,7 @@ update msg ({board, activeBlock, level, pieces} as model) =
                 
               32 ->
                 let tmp = setActivePiece model (r-1, c) t -- sp
+                
                 in  { tmp | skipNextTick = True }
                 
               _  -> 
@@ -167,9 +150,9 @@ update msg ({board, activeBlock, level, pieces} as model) =
     -> ({ model | level = level-100 })
     => Cmd.none
     
-    MouseMove pos
-    -> ({ model | mouse = Just pos})
-    => Cmd.none
+    -- MouseMove pos
+    -- -> ({ model | mouse = Just pos})
+    -- => Cmd.none
     
     Resize newRes
     -> ({ model | resolution = Just newRes })

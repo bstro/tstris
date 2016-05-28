@@ -30,7 +30,7 @@ type Msg
   = NoOp
   | Init Window.Size
   | Resize Window.Size
-  | MouseMove Mouse.Position
+  -- | MouseMove Mouse.Position
   | KeyDown KeyCode
   | Step Block
   | RotateL Block

@@ -15,7 +15,7 @@ emptyModel = Model emptyBoard emptyPieces Nothing Nothing Nothing 0 500 False
 emptyBoard : Board
 emptyBoard =
   let 
-    b = fromList <| [0..h] `andThen` \x -> [0..w] `andThen` \y -> [(x => y => Nothing)]
+    b = fromList <| [-1..h] `andThen` \x -> [0..w] `andThen` \y -> [(x => y => Nothing)]
     -- f = mapGround b
     -- debug = Debug.log "f is" f 
   in b --f
@@ -37,17 +37,17 @@ tetriminos : List Tetrimino
 tetriminos = [i,l,j,s,z,o,t] 
 
 
-willItCollide : Board -> Block -> Bool
-willItCollide board (gXY, points) =
+willItCollide : Board -> Board -> Block -> Bool
+willItCollide board pieces (gXY, points) =
   -- if gX < 0 || gX > w || gY < 0 then True
   -- else if List.map () 
   let 
     globals = List.map (\lXY -> localToGlobalXY lXY gXY) points
   in
-    List.any (\(r, c) ->
-     r < 1
-    ) globals
-  
+    List.any (\(r, c) -> r < 0) globals
+    ||
+    List.any (\g -> Dict.member g pieces) globals
+    
 
 
 i : Tetrimino
