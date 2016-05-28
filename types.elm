@@ -10,11 +10,14 @@ type alias Position = (Int, Int)
 type alias Tetrimino = List (Int, Int)
   
 type alias Block = (Position, Tetrimino)
+
+-- type alias Brick = Int
  
 type alias Board = Dict Position (Maybe Block)
   
 type alias Model =
   { board : Board
+  , pieces : Board
   , activeBlock : Maybe Block
   , mouse : Maybe Mouse.Position  
   , resolution : Maybe Window.Size

@@ -26,23 +26,21 @@ view model =
 
  
 layout : Model -> Maybe Element
-layout ({board, activeBlock, resolution} as model) =
+layout ({board, activeBlock, resolution, pieces} as model) =
   case resolution of
     Just {width, height} ->
       let
-        forms = group <| renderBoard board
+        empty = group <| renderBoard board
+        forms = group <| renderBoard pieces 
         oX = toFloat -(gS*w)/2
         oY = toFloat -(gS*h)/2
         xf = Transform.translation oX oY
         activeForm = renderActiveBlock activeBlock
-        layers = [forms, activeForm]
+        layers = [empty, forms, activeForm]
       in
       Just <| collage width height [Collage.move (oX, oY) <| group <| layers] 
       
     _ -> Nothing
-
-
-localToGlobalXY (lX, lY) (gX, gY) = (lX+gX , lY+gY)
 
 
 renderBlock : Position -> Block -> Color -> Form
@@ -53,8 +51,14 @@ renderBlock ((gX, gY) as gXY) (_, points) color =
       let
         x = toFloat c*gS
         y = toFloat r*gS
-      -- in move (x,y) <| toForm <| Element.leftAligned <| Text.style type1 <| Text.fromString (toString r ++ ":" ++ toString c)
-      in move (x,y) <| shape color
+        -- f = move (x,y) <| toForm <| Element.leftAligned <| Text.style type1 <| Text.fromString (toString r ++ ":" ++ toString c)
+        f = move (x,y) <| shape color
+        e = Collage.toForm Element.empty
+      in
+      if r < 0 || r > h || c < 0 || c > w then e
+      else if c < 0 then e
+      else if c > w then e
+      else f
     ) globals
   in 
   group forms
@@ -73,7 +77,7 @@ renderBoard board =
   let
     cellToForm gXY mT =
       case mT of
-        Just block -> renderBlock gXY block red
+        Just block -> renderBlock gXY block blue
         Nothing -> renderBlock gXY (gXY, [(0,0)]) gray
   in
   values <| Dict.map cellToForm board

@@ -31,33 +31,39 @@ subscriptions model =
     , Keyboard.downs KeyDown
     ]
 
-    
+
 init =
-  setActivePiece emptyModel (22,-3) t
+  setActivePiece emptyModel (22,1) t
   => Task.perform never Init Window.size
 
 
-localToGlobal : Position -> Position -> Position
-localToGlobal (lX, lY) (gX, gY) = (lX + gX, lY + gY)
-
--- iterate though (t) on block
--- for each Int,Int, add it to p
--- then insert p on board, board is accumulator
-
 setPiece : Board -> Block -> Board
-setPiece b (gXY, t) =
-  let loop acc list =
-    case list of
-      lXY :: xs ->
-        let
-          newCoords = localToGlobal lXY gXY
-          newBlock = (newCoords, [(0,0)]) 
-        in
-        loop (Dict.insert newCoords (Just newBlock) b) xs 
+setPiece board (gXY, t) =
+  let 
+    globals = List.map (\lXY -> localToGlobalXY lXY gXY) t
+    debug = Debug.log "globals are : " globals
+    loop acc list =
+      case list of
+        pos :: xs -> loop (Dict.insert pos (Just (pos, [(0,0)])) acc) xs
+        [] -> acc
+  in
+    let
+      newBoard = loop board globals
+      debug = Debug.log "newBoard is : " newBoard 
+    in newBoard 
+  
+  -- let loop acc list =
+  --   case list of
+  --     lXY :: xs ->
+  --       let
+  --         newCoords = localToGlobalXY lXY gXY
+  --         newBlock = (newCoords, [(0,0)]) 
+  --       in
+  --       loop (Dict.insert newCoords (Just newBlock) b) xs 
         
-      [] -> acc
+  --     [] -> acc
       
-  in loop b t
+  -- in loop b t
 
 
 setActivePiece : Model -> Position -> Tetrimino -> Model
@@ -74,7 +80,7 @@ gravity (r, c) = (r-1, c)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg ({board, activeBlock, level} as model) =
+update msg ({board, activeBlock, level, pieces} as model) =
   case msg of
     NoOp
     -> model
@@ -102,19 +108,21 @@ update msg ({board, activeBlock, level} as model) =
         False ->
           let 
             c = gravity p
-            ({activeBlock} as next) = setActivePiece model c t
-            new = setActivePiece model
+            next = setActivePiece model c t
           in 
           
           case next.activeBlock of
-            Just (((x,y), t) as block) ->
-              if abs y < h then next => Cmd.none
-              
-              else 
+            Just (((r, c), t) as block) ->
+              -- if abs y < h then next => Cmd.none
+              if willItCollide board block
+              then
                 { model 
-                | board = (setPiece board block)
+                | pieces = (setPiece pieces block)
                 , activeBlock = Nothing
-                } => Cmd.none
+                } => Task.perform never (\_ -> RandomPiece) (succeed 42)                
+              else
+                next => Cmd.none
+
 
             Nothing -> model => Cmd.none
 
@@ -172,5 +180,5 @@ update msg ({board, activeBlock, level} as model) =
     => (Random.generate NewPiece (Random.int 0 6))
 
     NewPiece r
-    -> (setActivePiece model (0,0) (getPiece r))
+    -> (setActivePiece model (22,0) (getPiece r))
     => Cmd.none

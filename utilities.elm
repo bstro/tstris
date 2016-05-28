@@ -15,6 +15,8 @@ type1 =
   , line     = Just Text.Under
   }
 
+localToGlobalXY (lX, lY) (gX, gY) = (lX+gX , lY+gY)
+
 w = 10 -- + 2 -- 2 extra for borders
 
 h = 22 -- + 2 -- 2 extra for borders
@@ -35,10 +37,6 @@ getRow idx = idx // w
     
 getCol : Int -> Int
 getCol idx = idx // h
-
-
--- rotatePiece : Tetrimino -> Tetrimino
--- rotatePiece = List.map rotate
 
 
 square : Shape
