@@ -9,45 +9,21 @@ import List.Extra exposing (andThen)
 
 
 emptyModel : Model
-emptyModel = Model emptyBoard emptyPieces Nothing Nothing Nothing 0 500 False
+emptyModel = 
+  Model emptyBoard emptyPieces emptyPieces Nothing Nothing Nothing 0 500 False
 
 
 emptyBoard : Board
 emptyBoard =
-  let 
-    b = fromList <| [-1..h] `andThen` \x -> [0..w] `andThen` \y -> [(x => y => Nothing)]
-    -- f = mapGround b
-    -- debug = Debug.log "f is" f 
-  in b --f
+  Dict.fromList <| [1..h] `andThen` \x -> [1..w] `andThen` \y -> [(x => y => Nothing)]
 
 
 emptyPieces : Board
 emptyPieces = fromList []
 
 
-mapGround : Board -> Board
-mapGround board =
-  Dict.map (\((r, c) as pos) v ->
-    if r < 0 then Just (pos, [(0,0)])
-    else v
-  ) board
-
-
 tetriminos : List Tetrimino
 tetriminos = [i,l,j,s,z,o,t] 
-
-
-willItCollide : Board -> Board -> Block -> Bool
-willItCollide board pieces (gXY, points) =
-  -- if gX < 0 || gX > w || gY < 0 then True
-  -- else if List.map () 
-  let 
-    globals = List.map (\lXY -> localToGlobalXY lXY gXY) points
-  in
-    List.any (\(r, c) -> r < 0) globals
-    ||
-    List.any (\g -> Dict.member g pieces) globals
-    
 
 
 i : Tetrimino

@@ -11,13 +11,14 @@ type alias Tetrimino = List (Int, Int)
   
 type alias Block = (Position, Tetrimino)
 
--- type alias Brick = Int
+type alias Brick = (Position, Int)
  
-type alias Board = Dict Position (Maybe Block)
+type alias Board = Dict Position (Maybe Brick)
   
 type alias Model =
   { board : Board
   , pieces : Board
+  , ghostPieces : Board
   , activeBlock : Maybe Block
   , mouse : Maybe Mouse.Position  
   , resolution : Maybe Window.Size
@@ -31,6 +32,7 @@ type Msg
   | Init Window.Size
   | Resize Window.Size
   -- | MouseMove Mouse.Position
+  | CheckStep Model
   | KeyDown KeyCode
   | Step Block
   | RotateL Block

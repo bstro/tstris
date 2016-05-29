@@ -1,83 +1,113 @@
 module View exposing (view)
 
-import Html exposing (div, text, button, Html)
--- import List exposing (foldl, foldr)
-import Element exposing (Element, toHtml)
-import Collage exposing (..)
+import Html
+import Window exposing (Size)
+import Svg exposing (..)
+import Svg.Lazy as Lazy
+import Svg.Attributes as Attr exposing (..)
 import Dict exposing (values)
-import Color exposing (..)
-import Transform
-import Text
+import List exposing (length)
 
 import Model exposing (..)
 import Types exposing (..)
 import Utilities exposing (..)
 
 
-view : Model -> Html Msg
-view model =
-  let element = layout model
-  in case element of
-    Just element ->
-      toHtml element
-      
-    Nothing ->
-      Html.text "Nothing" 
-
- 
-layout : Model -> Maybe Element
-layout ({board, activeBlock, resolution, pieces} as model) =
+view : Model -> Svg Msg
+view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
   case resolution of
-    Just {width, height} ->
-      let
-        empty = group <| renderBoard board
-        forms = group <| renderBoard pieces 
-        oX = toFloat -(gS*w)/2
-        oY = toFloat -(gS*h)/2
-        xf = Transform.translation oX oY
-        activeForm = renderActiveBlock activeBlock
-        layers = [empty, forms, activeForm]
-      in
-      Just <| collage width height [Collage.move (oX, oY) <| group <| layers] 
-      
-    _ -> Nothing
+    Just ({width, height} as res) ->
+      case activeBlock of
+        Just (((r,c), t) as block) ->
+          let
+            w  = toString width
+            h  = toString height
+            rz = "0" ++ " " ++ "0" ++ " " ++ w ++ " " ++ h  
+          in
+            svg 
+              [ viewBox "0 0 10 24"
+              , Attr.width (w ++ "px")
+              , Attr.height (h ++ "px")
+              ]
+              -- <| List.concat
+              [ layout <| Dict.values <| Dict.map maybeBrickToBrick emptyBoard
+              , layout <| Dict.values <| Dict.map maybeBrickToBrick pieces
+              , layout <| blockToBricks <| block 
+              , layout <| List.map ghostifyBrick <| blockToBricks <| block
+              ]
+        Nothing -> Svg.text "no activeBlock"
+    Nothing -> Svg.text "no resolution" 
 
 
-renderBlock : Position -> Block -> Color -> Form
-renderBlock ((gX, gY) as gXY) (_, points) color =
+layout : List Brick -> Svg a
+layout bricks =
+  Svg.g [] <| List.map renderBrick bricks
+ 
+
+renderBrick : Brick -> Svg a
+renderBrick ((yy,xx), v) =
   let
-    globals = List.map (\lXY -> localToGlobalXY lXY gXY) points
-    forms = List.map (\(r,c) ->
-      let
-        x = toFloat c*gS
-        y = toFloat r*gS
-        -- f = move (x,y) <| toForm <| Element.leftAligned <| Text.style type1 <| Text.fromString (toString r ++ ":" ++ toString c)
-        f = move (x,y) <| shape color
-        e = Collage.toForm Element.empty
-      in
-      if r < 0 || r > h || c < 0 || c > w then e
-      else if c < 0 then e
-      else if c > w then e
-      else f
-    ) globals
-  in 
-  group forms
-  -- move (xx,yy) <| shape color
-
-
-renderActiveBlock : Maybe Block -> Form
-renderActiveBlock block =
-  case block of
-    Just (((x,y), t) as v) -> renderBlock (x,y) v red 
-    Nothing -> Collage.toForm Element.empty
-
-
-renderBoard : Board -> List Form
-renderBoard board =
-  let
-    cellToForm gXY mT =
-      case mT of
-        Just block -> renderBlock gXY block blue
-        Nothing -> renderBlock gXY (gXY, [(0,0)]) gray
+    sq = toString gS
+    hx =
+      case v of
+        10   -> "orange"
+        1    -> "red"
+        4    -> "blue"
+        _    -> "lightgray"
   in
-  values <| Dict.map cellToForm board
+  rect [ fill hx
+       , x (toString <| xx)
+       , y (toString <| yy)
+       , Attr.width sq
+       , Attr.height sq
+       ] []
+
+
+-- blockHeight : Block -> Int    
+-- blockHeight (_, t) =
+--   let loop acc list =
+--     case list of
+--       (r,c) :: xs ->
+        
+       
+--       _ -> acc
+      
+  -- in loop 0 t
+  --  ) t
+
+-- blockWidth : Block -> Int
+
+    
+
+ghostifyBrick : Brick -> Brick
+ghostifyBrick ((r,c), b) =
+  ((23,c), 10)
+  
+  -- need a function called lowestBrickOnBoard ... or getFirstAvailableBrick and map (r,_) to that rather than 0 (dumb)
+   
+
+maybeBrickToBrick : Position -> Maybe Brick -> Brick
+maybeBrickToBrick pos mB =
+  case mB of
+    Just brick -> brick
+    Nothing -> (pos, -1)
+ 
+
+blockToBricks : Block -> List Brick
+blockToBricks (gRC, t) =
+  let
+    loop acc list =
+      case list of
+        lRC :: xs ->
+          loop (acc ++ [(localToGlobalCoords lRC gRC, length t)]) xs --acc ++ [(localToGlobalCoords lRC gRC, length t)] ++ loop
+        _ -> 
+          acc
+  in loop [] t
+
+
+blocksToBricks : List Block -> List Brick
+blocksToBricks blocks =
+  List.concatMap blockToBricks blocks
+ 
+ 
+   
