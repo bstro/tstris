@@ -109,10 +109,16 @@ update msg ({board, activeBlock, level, pieces} as model) =
             , activeBlock = Nothing
             } => Task.perform never (\_ -> RandomPiece) (succeed always)
                             
-          else next => Cmd.none
+          else next => Task.perform never (\_ -> CheckTetris) (succeed always)
 
         Nothing -> model => Cmd.none
       
+    CheckTetris ->
+      -- let
+      --   rowReduce acc loop =
+      -- in
+      model => Cmd.none  
+    
 
     KeyDown code ->
       case model.activeBlock of
@@ -164,8 +170,8 @@ update msg ({board, activeBlock, level, pieces} as model) =
 
     RandomPiece
     -> model
-    => (Random.generate NewPiece (Random.int 0 6))
+    => (Random.generate InsertPiece (Random.int 0 6))
 
-    NewPiece r
+    InsertPiece r
     -> (setActivePiece model (0, 6) (getPiece r))
     => Cmd.none

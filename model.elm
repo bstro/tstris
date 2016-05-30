@@ -7,6 +7,21 @@ import Types exposing (..)
 import Utilities exposing (..)
 import List.Extra exposing (andThen)
 
+left : Key
+left = Left 37
+
+up : Key
+up = Up 38
+
+right : Key
+right = Right 39
+
+down : Key
+down = Down 40
+
+space : Key
+space = Space 32
+
 
 emptyModel : Model
 emptyModel = 

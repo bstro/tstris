@@ -25,7 +25,7 @@ view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
             rz = "0" ++ " " ++ "0" ++ " " ++ w ++ " " ++ h  
           in
             svg 
-              [ viewBox "0 0 10 24"
+              [ viewBox "0 0 12 24" -- for some reason this centers it. where are the two extra columns coming from?
               , Attr.width (w ++ "px")
               , Attr.height (h ++ "px")
               ]
@@ -50,16 +50,16 @@ renderBrick ((yy,xx), v) =
     sq = toString gS
     hx =
       case v of
-        10   -> "orange"
+        10   -> "#F9F9F9"
         1    -> "red"
         4    -> "blue"
-        _    -> "lightgray"
+        _    -> "#E6E6E6"
   in
   rect [ fill hx
        , x (toString <| xx)
        , y (toString <| yy)
-       , Attr.width sq
-       , Attr.height sq
+       , Attr.width "0.95"
+       , Attr.height "0.95"
        ] []
 
 

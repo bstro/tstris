@@ -14,6 +14,15 @@ type alias Block = (Position, Tetrimino)
 type alias Brick = (Position, Int)
  
 type alias Board = Dict Position (Maybe Brick)
+
+type Key
+  = Left Int
+  | Up Int
+  | Right Int
+  | Down Int
+  | Space Int
+
+-- type alias Pieces = List (List Brick)
   
 type alias Model =
   { board : Board
@@ -32,13 +41,14 @@ type Msg
   | Init Window.Size
   | Resize Window.Size
   -- | MouseMove Mouse.Position
-  | CheckStep Model
+  | CheckStep Model -- model is next model in this case
+  | CheckTetris
   | KeyDown KeyCode
   | Step Block
   | RotateL Block
   | RotateR Block
   | Tick Time.Time
   | RandomPiece
-  | NewPiece Int
+  | InsertPiece Int
   | NextLevel
   
