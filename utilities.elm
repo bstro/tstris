@@ -3,7 +3,6 @@ module Utilities exposing (..)
 import Collage exposing (rect, filled, Form, Shape)
 import Color exposing (..)
 import Dict
-import Text
 
 import Types exposing (..)
 

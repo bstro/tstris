@@ -15,12 +15,12 @@ type alias Brick = (Position, Int)
  
 type alias Board = Dict Position (Maybe Brick)
 
-type Key
-  = Left Int
-  | Up Int
-  | Right Int
-  | Down Int
-  | Space Int
+-- type Key
+--   = Left Int
+--   | Up Int
+--   | Right Int
+--   | Down Int
+--   | Space Int
 
 -- type alias Pieces = List (List Brick)
   
@@ -40,10 +40,9 @@ type Msg
   = NoOp
   | Init Window.Size
   | Resize Window.Size
-  -- | MouseMove Mouse.Position
-  | CheckStep Model -- model is next model in this case
+  | CheckStep Model -- model is `next` model in this case
   | CheckTetris
-  | KeyDown KeyCode
+  | KeyDown KeyCode 
   | Step Block
   | RotateL Block
   | RotateR Block

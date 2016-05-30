@@ -1,11 +1,9 @@
-module Update exposing (update, setActivePiece)
+module Update exposing (update)
 
 import Utilities exposing (..)
 import Task exposing (succeed)
 import Basics.Extra exposing (never)
-import List.Extra exposing (getAt)
 import Random
-import Dict
 
 import Model exposing (..)
 import Types exposing (..)
@@ -60,7 +58,6 @@ update msg ({board, activeBlock, level, pieces} as model) =
     CheckTetris ->
       model => Cmd.none  
     
-
     KeyDown code ->
       case model.activeBlock of
         Just ((r,c), t) ->
@@ -112,32 +109,3 @@ update msg ({board, activeBlock, level, pieces} as model) =
     InsertPiece r
     -> (setActivePiece model (0, 6) (getPiece r))
     => Cmd.none
-    
-setPiece : Board -> Block -> Board
-setPiece board (gRC, t) =
-  let 
-    globals = List.map (\lRC -> localToGlobalCoords lRC gRC) t
-    loop acc list =
-      case list of
-        pos :: xs -> loop (Dict.insert pos (Just (pos, 1)) acc) xs
-        [] -> acc
-  in
-    let
-      newBoard = loop board globals
-    in newBoard 
-  
-
-setActivePiece : Model -> Position -> Tetrimino -> Model
-setActivePiece ({activeBlock} as model) ((r,c) as p) t =
-  if collidesWithWalls (p, t) then
-    model 
-  else
-    { model | activeBlock = Just (p, t) }
-    
-  
-getPiece : Int -> Tetrimino
-getPiece x = Maybe.withDefault i (getAt x tetriminos)
-
-
-gravity : Position -> Position
-gravity (r, c) = (r+1, c)

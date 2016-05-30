@@ -1,26 +1,48 @@
 module Model exposing (..)
 
-import List.Extra exposing (andThen)
+import List.Extra exposing (andThen, getAt)
 import Dict exposing (fromList)
 
 import Types exposing (..)
 import Utilities exposing (..)
 import List.Extra exposing (andThen)
 
-left : Key
-left = Left 37
 
-up : Key
-up = Up 38
+-- left = Left 37
+-- up = Up 38
+-- right = Right 39
+-- down = Down 40
+-- space = Space 32
 
-right : Key
-right = Right 39
 
-down : Key
-down = Down 40
+setPiece : Board -> Block -> Board
+setPiece board (gRC, t) =
+  let 
+    globals = List.map (\lRC -> localToGlobalCoords lRC gRC) t
+    loop acc list =
+      case list of
+        pos :: xs -> loop (Dict.insert pos (Just (pos, 1)) acc) xs
+        [] -> acc
+  in
+    let
+      newBoard = loop board globals
+    in newBoard 
+  
 
-space : Key
-space = Space 32
+setActivePiece : Model -> Position -> Tetrimino -> Model
+setActivePiece ({activeBlock} as model) ((r,c) as p) t =
+  if collidesWithWalls (p, t) then
+    model 
+  else
+    { model | activeBlock = Just (p, t) }
+    
+  
+getPiece : Int -> Tetrimino
+getPiece x = Maybe.withDefault i (getAt x tetriminos)
+
+
+gravity : Position -> Position
+gravity (r, c) = (r+1, c)
 
 
 emptyModel : Model
