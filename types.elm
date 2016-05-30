@@ -13,31 +13,34 @@ type alias Tetrimino = List (Int, Int)
   
 type alias Block = (Position, Tetrimino)
 
-type alias Brick = Int
+type alias Brick = (Position, Int)
  
-type alias Board =
-  { positions: Positions
-  , activeBlock : Maybe Block
-  }
-  
+type alias Board = Dict Position (Maybe Brick)
+
 type alias Model =
   { board : Board
+  , pieces : Board
+  , ghostPieces : Board
+  , activeBlock : Maybe Block
   , mouse : Maybe Mouse.Position  
   , resolution : Maybe Window.Size
   , timeout : Int 
   , level : Int
+  , skipNextTick : Bool
   } 
 
 type Msg
   = NoOp
   | Init Window.Size
   | Resize Window.Size
-  | MouseMove Mouse.Position
-  | KeyDown KeyCode
+  | CheckStep Model -- model is `next` model in this case
+  | CheckTetris
+  | KeyDown KeyCode 
   | Step Block
-  | Rotate Block
+  | RotateL Block
+  | RotateR Block
   | Tick Time.Time
   | RandomPiece
-  | NewPiece Int
+  | InsertPiece Int
   | NextLevel
   

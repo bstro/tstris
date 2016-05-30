@@ -1,88 +1,92 @@
 module View exposing (view)
 
-import Html exposing (div, text, button, Html)
-import List exposing (foldl, foldr)
-import Element exposing (..)
-import Collage exposing (..)
+import Svg exposing (..)
+import Svg.Attributes as Attr exposing (..)
 import Dict exposing (values)
-import Color
-import Transform
+import List exposing (length)
 
 import Model exposing (..)
 import Types exposing (..)
 import Utilities exposing (..)
 
 
-view : Model -> Html Msg
-view model =
-  let forms = layout model
-  in case forms of
-    Just forms ->
-      toHtml forms
-      
-    Nothing ->
-      Html.text "Nothing" 
+view : Model -> Svg Msg
+view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
+  case resolution of
+    Just ({width, height} as res) ->
+      case activeBlock of
+        Just (((r,c), t) as block) ->
+          let
+            w  = toString <| width
+            h  = toString <| height  
+          in
+            svg 
+              [ viewBox "0 0 12 24" -- for some reason this centers it. where are the two extra columns coming from?
+              , Attr.width (w ++ "px")
+              , Attr.height (h ++ "px")
+              , Attr.style "overflow: hidden; position: absolute;" 
+              ]              
+              [ layout <| Dict.values <| Dict.map maybeBrickToBrick emptyBoard
+              , layout <| Dict.values <| Dict.map maybeBrickToBrick pieces
+              , layout <| blockToBricks <| block 
+              , layout <| List.map ghostifyBrick <| blockToBricks <| block
+              ]
+        Nothing -> Svg.text "no activeblock"
+    Nothing -> Svg.text "no resolution" 
+
+
+layout : List Brick -> Svg a
+layout bricks = Svg.g [] <| List.map renderBrick bricks
+ 
+
+renderBrick : Brick -> Svg a
+renderBrick ((yy,xx), v) =
+  let
+    sq = toString gS
+    hx =
+      case v of
+        10   -> "#F9F9F9"
+        1    -> "red"
+        4    -> "blue"
+        _    -> "#E6E6E6"
+  in
+  rect [ fill hx
+       , x (toString <| xx)
+       , y (toString <| yy)
+       , Attr.width "0.95"
+       , Attr.height "0.95"
+       ] []
+
+
+-- need a function called lowestBrickOnBoard 
+-- ... or getFirstAvailableBrick and map (r,_) to that rather than 0 (dumb)
+ghostifyBrick : Brick -> Brick
+ghostifyBrick ((r,c), b) =
+  ((23,c), 10)
+  
+ 
+maybeBrickToBrick : Position -> Maybe Brick -> Brick
+maybeBrickToBrick pos mB =
+  case mB of
+    Just brick -> brick
+    Nothing -> (pos, -1)
+ 
+
+blockToBricks : Block -> List Brick
+blockToBricks (gRC, t) =
+  let
+    loop acc list =
+      case list of
+        lRC :: xs ->
+          loop (acc ++ [(localToGlobalCoords lRC gRC, length t)]) xs --acc ++ [(localToGlobalCoords lRC gRC, length t)] ++ loop
+        _ -> 
+          acc
+  in loop [] t
+
+
+blocksToBricks : List Block -> List Brick
+blocksToBricks blocks =
+  List.concatMap blockToBricks blocks
  
  
-layout : Model -> Maybe Element
-layout ({board, resolution, mouse} as model) =
-  case model.resolution of
-    Just {width, height} ->
-      let
-        oX = -(toFloat w)*gS/2
-        oY = -(toFloat h)*gS/2
-        xf = Transform.translation oX oY
-        piece = Maybe.withDefault 
-      in
-        Just <| collage width height
-             <| [ groupTransform xf (renderBoard board)
-                , group <| renderBlock board.activeBlock
-                -- , group <| renderBlock <| Just ((-4,-11), l)
-                ]
-    
-    Nothing -> Nothing
-    
-
-
-renderBoard {positions, activeBlock} =
-  values <| Dict.map (\(r,c) v ->
-    let
-      y = (toFloat c * gS)
-      x = (toFloat r * gS)
-    in
-    move (x,y) <| group <| (renderBlock v)
-  ) positions
-  
-  
-square : Shape
-square = rect gS gS
-
-
-shape : Color.Color -> Form
-shape color = square |> (filled <| color)
-
-
-renderBlock : Maybe Block -> List Form
-renderBlock block =
-  case block of
-    Just ((oX, oY), t) ->
-      let
-        f = 
-          if List.length t > 1 then
-            List.map (\(x, y) ->
-              let
-                xx = (toFloat <| x) * gS
-                yy = (toFloat <| y) * gS
-              in
-                move (xx, yy) (shape Color.orange)) t
-          else [(shape Color.red)]
-        nX = (toFloat (-3+oX))*gS
-        nY = (toFloat (11-oY))*gS
-        xf = Transform.translation nX nY
-
-      in [groupTransform xf f]
-                  
-    Nothing -> [shape Color.gray]
-    
--- xf = Transform.translation (oX+gS/2) (oY+gS/2)
--- xformed = groupTransform xf forms
+   

@@ -1,6 +1,6 @@
 module Model exposing (..)
 
-import List.Extra exposing (andThen)
+import List.Extra exposing (andThen, getAt)
 import Dict exposing (fromList)
 
 import Types exposing (..)
@@ -8,14 +8,55 @@ import Utilities exposing (..)
 import List.Extra exposing (andThen)
 
 
+-- left = Left 37
+-- up = Up 38
+-- right = Right 39
+-- down = Down 40
+-- space = Space 32
+
+
+setPiece : Board -> Block -> Board
+setPiece board (gRC, t) =
+  let 
+    globals = List.map (\lRC -> localToGlobalCoords lRC gRC) t
+    loop acc list =
+      case list of
+        pos :: xs -> loop (Dict.insert pos (Just (pos, 1)) acc) xs
+        [] -> acc
+  in
+    let
+      newBoard = loop board globals
+    in newBoard 
+  
+
+setActivePiece : Model -> Position -> Tetrimino -> Model
+setActivePiece ({activeBlock} as model) ((r,c) as p) t =
+  if collidesWithWalls (p, t) then
+    model 
+  else
+    { model | activeBlock = Just (p, t) }
+    
+  
+getPiece : Int -> Tetrimino
+getPiece x = Maybe.withDefault i (getAt x tetriminos)
+
+
+gravity : Position -> Position
+gravity (r, c) = (r+1, c)
+
+
 emptyModel : Model
-emptyModel = Model emptyBoard Nothing Nothing 0 100
+emptyModel = 
+  Model emptyBoard emptyPieces emptyPieces Nothing Nothing Nothing 0 500 False
 
 
 emptyBoard : Board
 emptyBoard =
-  let lst = [1..w] `andThen` \x -> [1..h] `andThen` \y -> [(x => y => Nothing)]
-  in Board (fromList lst) Nothing 
+  Dict.fromList <| [1..h] `andThen` \x -> [1..w] `andThen` \y -> [(x => y => Nothing)]
+
+
+emptyPieces : Board
+emptyPieces = fromList []
 
 
 tetriminos : List Tetrimino
@@ -64,8 +105,8 @@ z =
 o : Tetrimino
 o =
   [
-    (0,-1) , (1,-1) ,
-    (0, 0) , (1, 0)
+    (-1,-1) ,  (0,-1) ,
+    (-1, 0) ,  (0, 0)
   ]
 
 
