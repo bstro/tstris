@@ -27,13 +27,14 @@ type alias Model =
   , timeout : Int 
   , level : Int
   , skipNextTick : Bool
+  , rows : Dict Int Int
   } 
 
 type Msg
   = NoOp
   | Init Window.Size
   | Resize Window.Size
-  | CheckStep Model -- model is `next` model in this case
+  | CheckStep Model Position-- model is `next` model in this case
   | CheckTetris
   | KeyDown KeyCode 
   | Step Block

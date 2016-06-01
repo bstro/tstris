@@ -39,9 +39,9 @@ update msg ({board, activeBlock, level, pieces} as model) =
           in
           model => Task.perform never (\_ -> CheckStep next p) (succeed always)
 
-    CheckStep next (pr,pc) ->
+    CheckStep next (pr,pc) ->            
       case next.activeBlock of
-        Just ((_, t) as nextBlock) ->
+        Just (((r, c), t) as block) ->
           let
             coords = blockToBricks ((pr,pc),t)
             
@@ -50,9 +50,10 @@ update msg ({board, activeBlock, level, pieces} as model) =
             rows = List.foldl (\cur acc ->
               Dict.update cur maybeAddOne acc
             ) model.rows bricksToInts
-                       
+            
+            
           in
-            if collidesWithPieces pieces nextBlock || collidesWithGround nextBlock
+            if collidesWithPieces pieces block || collidesWithGround block
             then
               { model
               | rows = rows
@@ -60,30 +61,72 @@ update msg ({board, activeBlock, level, pieces} as model) =
               , activeBlock = Nothing
               } => Task.perform never (\_ -> RandomPiece) (succeed always)
 
-            else next => Cmd.none
+            else next => Cmd.none --Task.perform never (\_ -> CheckTetris) (succeed always)
 
         Nothing -> model => Cmd.none
       
     CheckTetris ->
       let
-        fullRows = -- [22, 21, 20] 
+        fullRows = 
           List.map fst 
             <| List.filter (\(_,s) -> s == 10) -- filter out all rows without 10 blocks
             <| List.reverse 
             <| Dict.toList
             <| model.rows
-        log = Debug.log "fullRows" fullRows
-      in
-      
-      if List.length fullRows > 0 then
-        { model
-        | rows = removeKeyFromDict model.rows fullRows
-        , pieces = removeRowsFromBoard fullRows model.pieces  
-        } => Cmd.none
         
-      else
-        model => Cmd.none
-      
+      in      
+        if (List.length fullRows) == 0 then
+          model => Cmd.none
+          
+        else
+          let
+            removeKeysFromDict : Dict.Dict comparable -> List comparable -> Dict.Dict a
+            removeKeysFromDict dict keys =
+              case keys of
+                k :: ks -> removeKeysFromDict (Dict.remove k dict) ks
+                [] -> dict
+                
+            pcs = loop Dict.empty fullRows
+          
+            loop acc list =
+              case list of
+                fr :: xs ->
+                  let
+                    reducer : Position -> Maybe Brick -> Board -> Board
+                    reducer (r,c) mB acc =
+                      if fr == r then
+                        acc
+                        
+                      -- I need a flag to mark certain rows for removal from model.rows,
+                      -- if they've been removed from the board. i think that's the problem. 
+                        
+                      else if r < fr then
+                        let pos = (r+1, c)
+                        in Dict.insert pos (Just (pos, 11)) acc
+                        
+                      else
+                        Dict.insert (r, c) (Just ((r, c), 1)) acc
+                  in
+                    loop (Dict.foldl reducer acc model.pieces) xs  
+                  
+                [] -> acc
+                
+          in { model
+             | rows = removeDictKeys model.rows fullRows 
+             , pieces = pcs
+             } => Cmd.none
+
+        
+                
+        -- o(n)^2 i think.
+        -- iterate over rows :
+          -- collect sizes of each row
+            -- fold over rows : starting at bottom (22), removing full rows, using removedRowCountSoFar as a kind of accumulator
+              -- { row | position = (r-removedRowCountSoFar, c)}
+          
+        -- will probably want to keep track of exiting rows 
+  
+    
     KeyDown code ->
       case model.activeBlock of
         Just ((r,c), t) ->

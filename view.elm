@@ -3,7 +3,7 @@ module View exposing (view)
 import Svg exposing (..)
 import Svg.Attributes as Attr exposing (..)
 import Dict exposing (values)
-import List exposing (length)
+import List
 
 import Model exposing (..)
 import Types exposing (..)
@@ -29,7 +29,7 @@ view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
               [ layout <| Dict.values <| Dict.map maybeBrickToBrick emptyBoard
               , layout <| Dict.values <| Dict.map maybeBrickToBrick pieces
               , layout <| blockToBricks <| block 
-              , layout <| List.map ghostifyBrick <| blockToBricks <| block
+              -- , layout <| List.map ghostifyBrick <| blockToBricks <| block
               ]
         Nothing -> Svg.text "no activeblock"
     Nothing -> Svg.text "no resolution" 
@@ -45,48 +45,25 @@ renderBrick ((yy,xx), v) =
     sq = toString gS
     hx =
       case v of
+        11   -> "purple"
         10   -> "#F9F9F9"
         1    -> "red"
         4    -> "blue"
         _    -> "#E6E6E6"
   in
-  rect [ fill hx
-       , x (toString <| xx)
-       , y (toString <| yy)
-       , Attr.width "0.95"
-       , Attr.height "0.95"
-       ] []
-
-
--- need a function called lowestBrickOnBoard 
--- ... or getFirstAvailableBrick and map (r,_) to that rather than 0 (dumb)
-ghostifyBrick : Brick -> Brick
-ghostifyBrick ((r,c), b) =
-  ((23,c), 10)
-  
- 
-maybeBrickToBrick : Position -> Maybe Brick -> Brick
-maybeBrickToBrick pos mB =
-  case mB of
-    Just brick -> brick
-    Nothing -> (pos, -1)
- 
-
-blockToBricks : Block -> List Brick
-blockToBricks (gRC, t) =
-  let
-    loop acc list =
-      case list of
-        lRC :: xs ->
-          loop (acc ++ [(localToGlobalCoords lRC gRC, length t)]) xs --acc ++ [(localToGlobalCoords lRC gRC, length t)] ++ loop
-        _ -> 
-          acc
-  in loop [] t
-
-
-blocksToBricks : List Block -> List Brick
-blocksToBricks blocks =
-  List.concatMap blockToBricks blocks
- 
- 
-   
+  Svg.g 
+  [ fill hx
+  , x (toString <| xx)
+  , y (toString <| yy)
+  , Attr.width "0.95"
+  , Attr.height "0.95"
+  ]
+  [ rect
+    [ fill hx
+    , x (toString <| xx)
+    , y (toString <| yy)
+    , Attr.width "0.95"
+    , Attr.height "0.95"
+    ] []
+  , Svg.text' [ fontFamily "Helvetica", fill "black", fontSize "1", x "50", y "50" ] [Svg.text "x"]   
+  ]

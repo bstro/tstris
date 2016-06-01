@@ -7,14 +7,6 @@ import Types exposing (..)
 import Utilities exposing (..)
 import List.Extra exposing (andThen)
 
-
--- left = Left 37
--- up = Up 38
--- right = Right 39
--- down = Down 40
--- space = Space 32
-
-
 setPiece : Board -> Block -> Board
 setPiece board (gRC, t) =
   let 
@@ -47,9 +39,19 @@ gravity (r, c) = (r+1, c)
 
 emptyModel : Model
 emptyModel = 
-  Model emptyBoard emptyPieces emptyPieces Nothing Nothing Nothing 0 500 False
-
-
+  { board = emptyBoard
+  , pieces = emptyPieces
+  , ghostPieces = emptyPieces
+  , activeBlock = Nothing
+  , mouse = Nothing  
+  , resolution = Nothing
+  , timeout = 0
+  , level = 500
+  , skipNextTick = False
+  , rows = Dict.empty --Dict.singleton 0 0
+  } 
+   
+   
 emptyBoard : Board
 emptyBoard =
   Dict.fromList <| [1..h] `andThen` \x -> [1..w] `andThen` \y -> [(x => y => Nothing)]
