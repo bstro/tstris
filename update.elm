@@ -39,50 +39,62 @@ update msg ({board, activeBlock, level, pieces} as model) =
           in
           model => Task.perform never (\_ -> CheckStep next p) (succeed always)
 
-    CheckStep next (pr,pc) ->
+    CheckStep next (pr,pc) ->      
       case next.activeBlock of
-        Just ((_, t) as nextBlock) ->
+        Just ((_, mb) as nextBlock) ->
           let
-            coords = blockToBricks ((pr,pc),t)
-            
+            coords = blockToBricks ((pr,pc), mb)
             bricksToInts = List.map (\((pr, _), _) -> pr) coords
-            
-            rows = List.foldl (\cur acc ->
-              Dict.update cur maybeAddOne acc
-            ) model.rows bricksToInts
-                       
+            rows = List.foldl (\cur acc -> Dict.update cur maybeAddOne acc) model.rows bricksToInts
           in
-            if collidesWithPieces pieces nextBlock || collidesWithGround nextBlock
-            then
-              { model
-              | rows = rows
-              , pieces = (setPiece pieces ((pr, pc), t))
-              , activeBlock = Nothing
-              } => Task.perform never (\_ -> RandomPiece) (succeed always)
+          
+          if collidesWithPieces pieces nextBlock || collidesWithGround nextBlock then
+            { model
+            | rows = rows
+            , pieces = (setPiece pieces ((pr, pc), mb))
+            , activeBlock = Nothing
+            } => Task.perform never (\_ -> RandomPiece) (succeed always)
 
-            else next => Cmd.none
+          else next => Cmd.none
 
         Nothing -> model => Cmd.none
       
     CheckTetris ->
       let
-        fullRows = -- [22, 21, 20] 
+        fullRows = 
           List.map fst 
-            <| List.filter (\(_,s) -> s == 10) -- filter out all rows without 10 blocks
+            <| List.filter (\(_, s) -> s == 10) -- filter out all rows without 10 blocks
             <| List.reverse 
             <| Dict.toList
             <| model.rows
-        log = Debug.log "fullRows" fullRows
-      in
-      
-      if List.length fullRows > 0 then
-        { model
-        | rows = removeKeyFromDict model.rows fullRows
-        , pieces = removeRowsFromBoard fullRows model.pieces  
-        } => Cmd.none
+            
         
+        log = Debug.log "fullRows are" fullRows
+            
+        overPieces fullRow acc =
+          let log = Debug.log "fullRow is" fullRow in
+          Dict.foldr (\(r,c) v a ->
+            if r == fullRow then a
+            else if r < fullRow then 
+              { a
+              | pieces = Dict.insert (r+1, c) (Just ((r+1,c), 1)) a.pieces -- move columns forward a row in BOTH `rows` and `pieces`
+              , rows = Dict.update (r+1) maybeAddOne a.rows  
+              }
+            else
+              { a
+              | pieces = Dict.insert (r,c) v a.pieces
+              , rows = Dict.update r maybeAddOne a.rows
+              }
+          ) acc model.pieces
+                   
+      in
+      if List.length fullRows > 0 then
+        (List.foldl overPieces { model | pieces = Dict.empty, rows = Dict.empty } fullRows)
+        => Cmd.none
       else
         model => Cmd.none
+    
+      -- model => Cmd.none
       
     KeyDown code ->
       case model.activeBlock of

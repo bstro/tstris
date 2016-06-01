@@ -48,7 +48,7 @@ emptyModel =
   , timeout = 0
   , level = 500
   , skipNextTick = False
-  , rows = Dict.empty --Dict.singleton 0 0
+  , rows = Dict.empty
   } 
    
    

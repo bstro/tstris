@@ -47,9 +47,7 @@ update msg ({board, activeBlock, level, pieces} as model) =
             
             bricksToInts = List.map (\((pr, _), _) -> pr) coords
             
-            rows = List.foldl (\cur acc ->
-              Dict.update cur maybeAddOne acc
-            ) model.rows bricksToInts
+            rows = List.foldl (\cur acc -> Dict.update cur maybeAddOne acc) model.rows bricksToInts
             
             
           in

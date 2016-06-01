@@ -29,7 +29,7 @@ view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
               [ layout <| Dict.values <| Dict.map maybeBrickToBrick emptyBoard
               , layout <| Dict.values <| Dict.map maybeBrickToBrick pieces
               , layout <| blockToBricks <| block 
-              -- , layout <| List.map ghostifyBrick <| blockToBricks <| block
+              , layout <| List.map ghostifyBrick <| blockToBricks <| block
               ]
         Nothing -> Svg.text "no activeblock"
     Nothing -> Svg.text "no resolution" 
@@ -43,27 +43,26 @@ renderBrick : Brick -> Svg a
 renderBrick ((yy,xx), v) =
   let
     sq = toString gS
+    xxOffset = toFloat xx + toFloat gS / 2 |> toString
+    yyOffset = toFloat yy + toFloat gS / 2 |> toString
     hx =
       case v of
-        11   -> "purple"
         10   -> "#F9F9F9"
         1    -> "red"
-        4    -> "blue"
+        4    -> "orange"
         _    -> "#E6E6E6"
   in
+  
   Svg.g 
+  []
+  
+  [ rect
   [ fill hx
   , x (toString <| xx)
   , y (toString <| yy)
   , Attr.width "0.95"
   , Attr.height "0.95"
-  ]
-  [ rect
-    [ fill hx
-    , x (toString <| xx)
-    , y (toString <| yy)
-    , Attr.width "0.95"
-    , Attr.height "0.95"
-    ] []
-  , Svg.text' [ fontFamily "Helvetica", fill "black", fontSize "1", x "50", y "50" ] [Svg.text "x"]   
+  ] []
+  
+  , Svg.text' [ textAnchor "middle", fontWeight "bold", fontFamily "Helvetica", fill "black", fontSize "0.25", x xxOffset, y yyOffset ] [Svg.text ((toString <| yy) ++ " : " ++ (toString <| xx))]   
   ]

@@ -2,29 +2,29 @@ module Utilities exposing (..)
 
 import Collage exposing (rect, filled, Form, Shape)
 import Color exposing (..)
-import Dict
+import Dict exposing (Dict)
 
 import Types exposing (..)
 
 
-removeKeyFromDict : Dict.Dict comparable a -> List comparable -> Dict.Dict comparable a
-removeKeyFromDict d ks = List.foldl Dict.remove d ks
+-- removeKeyFromDict : Dict.Dict comparable a -> List comparable -> Dict.Dict comparable a
+-- removeKeyFromDict d ks = List.foldl Dict.remove d ks
 
 
-removeRowsFromBoard : List Int -> Board -> Board
-removeRowsFromBoard rows board = List.foldl removeRowFromBoard board rows
+-- removeRowsFromBoard : List Int -> Board -> Board
+-- removeRowsFromBoard rows board = List.foldl removeRowFromBoard board rows
 
 
-removeRowFromBoard : Int -> Board -> Board
-removeRowFromBoard row board = Dict.filter (\(r, _) _ -> not <| r == row) board
+-- removeRowFromBoard : Int -> Board -> Board
+-- removeRowFromBoard row board = Dict.filter (\(r, _) _ -> not <| r == row) board
 
 
 maybeAddOne mV =
   case mV of
     Just v -> Just (v+1)
-    _ -> Just 1
-    
-    
+    _ -> Just 1    
+
+
 -- need a function called lowestBrickOnBoard 
 -- ... or getFirstAvailableBrick and map (r,_) to that rather than 0 (dumb)
 ghostifyBrick : Brick -> Brick
