@@ -44,7 +44,6 @@ emptyModel =
   , outgoing = emptyPieces
   , ghostPieces = emptyPieces
   , activeBlock = Nothing
-  , mouse = Nothing
   , resolution = Nothing
   , timeout = 0
   , skipNextTick = False

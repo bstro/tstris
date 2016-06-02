@@ -1,6 +1,5 @@
 module Utilities exposing (..)
 
-import Collage exposing (rect, filled, Form, Shape)
 import Color exposing (..)
 import Dict exposing (Dict)
 
@@ -107,10 +106,3 @@ getRow idx = idx // w
 getCol : Int -> Int
 getCol idx = idx // h
 
-
-square : Shape
-square = rect gS gS
-
-
-shape : Color.Color -> Form
-shape color = square |> (filled <| color)

@@ -1,7 +1,6 @@
 module Types exposing (..)
 import Window
 import Keyboard exposing (KeyCode)
-import Mouse
 import Time
 import Dict exposing (Dict)
 
@@ -22,8 +21,7 @@ type alias Model =
   , pieces : Board
   , ghostPieces : Board
   , outgoing : Board
-  , activeBlock : Maybe Block
-  , mouse : Maybe Mouse.Position  
+  , activeBlock : Maybe Block  
   , resolution : Maybe Window.Size
   , timeout : Int 
   , skipNextTick : Bool
