@@ -41,6 +41,7 @@ blockToBricks (gRC, t) =
 blocksToBricks : List Block -> List Brick
 blocksToBricks blocks = List.concatMap blockToBricks blocks
 
+
 collidesWithWalls : Block -> Bool
 collidesWithWalls (gRC, points) =
   let 
