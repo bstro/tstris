@@ -82,9 +82,14 @@ update msg ({board, activeBlock, level, pieces} as model) =
                 }  
       in
         if List.length fullRows > 0 then
-          Dict.foldr foldOverModel { model | rows = Dict.empty, pieces = Dict.empty } model.pieces 
+          Dict.foldr
+            foldOverModel
+              { model
+              | rows = Dict.empty
+              , pieces = Dict.empty
+              } model.pieces 
           => Cmd.none
-          
+
         else
           model => Cmd.none
     
