@@ -48,7 +48,7 @@ renderBrick ((yy,xx), v) =
       case v of
         1     -> "#2C313A"
         -- 10    -> "#E8C0ED"
-        4     -> "red"
+        4     -> "#0a70f5"
         _     -> "#E6E6E6"
   in
   
