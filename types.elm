@@ -35,7 +35,7 @@ type Msg
   | Init Window.Size
   | Resize Window.Size
   | CheckStep Model Position-- model is `next` model in this case
-  | CheckTetris
+  | ClearRows
   | KeyDown KeyCode 
   | Step Block
   | RotateL Block

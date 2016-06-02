@@ -59,7 +59,7 @@ update msg ({board, activeBlock, level, pieces} as model) =
 
         Nothing -> model => Cmd.none
       
-    CheckTetris ->
+    ClearRows ->
       let
         fullRows = 
           List.map fst 
@@ -68,33 +68,26 @@ update msg ({board, activeBlock, level, pieces} as model) =
             <| Dict.toList
             <| model.rows
             
-        
-        log = Debug.log "fullRows are" fullRows
-            
-        overPieces fullRow acc =
-          let log = Debug.log "fullRow is" fullRow in
-          Dict.foldr (\(r,c) v a ->
-            if r == fullRow then a
-            else if r < fullRow then 
-              { a
-              | pieces = Dict.insert (r+1, c) (Just ((r+1,c), 1)) a.pieces -- move columns forward a row in BOTH `rows` and `pieces`
-              , rows = Dict.update (r+1) maybeAddOne a.rows  
-              }
+        foldOverModel (r,c) v acc =
+          let 
+            rowOffset = List.length <| List.filter (\fr -> r < fr) fullRows
+          in 
+            if List.member r fullRows then
+              acc
             else
-              { a
-              | pieces = Dict.insert (r,c) v a.pieces
-              , rows = Dict.update r maybeAddOne a.rows
-              }
-          ) acc model.pieces
-                   
+              let nr = r+rowOffset in
+                { acc 
+                | pieces = Dict.insert (nr, c) (Just ((nr, c), 1)) acc.pieces
+                , rows = Dict.update nr maybeAddOne acc.rows
+                }  
       in
-      if List.length fullRows > 0 then
-        (List.foldl overPieces { model | pieces = Dict.empty, rows = Dict.empty } fullRows)
-        => Cmd.none
-      else
-        model => Cmd.none
+        if List.length fullRows > 0 then
+          Dict.foldr foldOverModel { model | rows = Dict.empty, pieces = Dict.empty } model.pieces 
+          => Cmd.none
+          
+        else
+          model => Cmd.none
     
-      -- model => Cmd.none
       
     KeyDown code ->
       case model.activeBlock of
@@ -146,4 +139,4 @@ update msg ({board, activeBlock, level, pieces} as model) =
 
     InsertPiece r
     -> (setActivePiece model (0, 6) (getPiece r))
-    => Task.perform never (\_ -> CheckTetris) (succeed always)
+    => Task.perform never (\_ -> ClearRows) (succeed always)
