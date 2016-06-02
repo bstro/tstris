@@ -24,7 +24,8 @@ collisionsAtRow pieces (((r,c), t) as block) row =
     collidesWithPieces pieces bricks || collidesWithGround bricks
     
 
-
+-- instead of finding the first available row,
+-- we must find the first row with an unobstructed path.
 firstAvailableRow : Board -> Block -> Int
 firstAvailableRow pieces block =
   let
