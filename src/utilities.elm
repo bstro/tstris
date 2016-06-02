@@ -6,18 +6,6 @@ import Dict exposing (Dict)
 import Types exposing (..)
 
 
--- removeKeyFromDict : Dict.Dict comparable a -> List comparable -> Dict.Dict comparable a
--- removeKeyFromDict d ks = List.foldl Dict.remove d ks
-
-
--- removeRowsFromBoard : List Int -> Board -> Board
--- removeRowsFromBoard rows board = List.foldl removeRowFromBoard board rows
-
-
--- removeRowFromBoard : Int -> Board -> Board
--- removeRowFromBoard row board = Dict.filter (\(r, _) _ -> not <| r == row) board
-
-
 maybeAddOne mV =
   case mV of
     Just v -> Just (v+1)
