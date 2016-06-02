@@ -41,7 +41,7 @@ update msg ({board, activeBlock, pieces} as model) =
 
     CheckStep next (pr,pc) ->
       case next.activeBlock of
-        Just ((_, mb) as nextBlock) ->
+        Just ((((cr, cc), mb) as nextBlock)) ->
           let
             coords = blockToBricks ((pr,pc), mb)
             bricksToInts = List.map (\((pr, _), _) -> pr) coords
@@ -49,11 +49,14 @@ update msg ({board, activeBlock, pieces} as model) =
           in
 
           if collidesWithPieces pieces nextBlock || collidesWithGround nextBlock then
-            { model
-            | rows = rows
-            , pieces = (setPiece pieces ((pr, pc), mb))
-            , activeBlock = Nothing
-            } => Task.perform never (\_ -> RandomPiece) (succeed always)
+            if cc-1 == pc || cc+1 == pc then -- if horizontal move collision
+              model => Cmd.none
+            else
+              { model
+              | rows = rows
+              , pieces = (setPiece pieces ((pr, pc), mb))
+              , activeBlock = Nothing
+              } => Task.perform never (\_ -> RandomPiece) (succeed always)
 
           else next => Cmd.none
 
