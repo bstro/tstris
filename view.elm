@@ -42,15 +42,14 @@ layout bricks = Svg.g [] <| List.map renderBrick bricks
 renderBrick : Brick -> Svg a
 renderBrick ((yy,xx), v) =
   let
-    sq = toString gS
     xxOffset = toFloat xx + toFloat gS / 2 |> toString
     yyOffset = toFloat yy + toFloat gS / 2 |> toString
     hx =
       case v of
-        10   -> "#F9F9F9"
-        1    -> "red"
-        4    -> "red"
-        _    -> "#E6E6E6"
+        1     -> "#2C313A"
+        -- 10    -> "#E8C0ED"
+        4     -> "red"
+        _     -> "#E6E6E6"
   in
   
   Svg.g 
@@ -64,5 +63,5 @@ renderBrick ((yy,xx), v) =
   , Attr.height "0.95"
   ] []
   
-  , Svg.text' [ textAnchor "middle", fontWeight "bold", fontFamily "Helvetica", fill "black", fontSize "0.25", x xxOffset, y yyOffset ] [Svg.text ((toString <| yy) ++ " : " ++ (toString <| xx))]   
+  -- , Svg.text' [ textAnchor "middle", fontWeight "bold", fontFamily "Helvetica", fill "black", fontSize "0.25", x xxOffset, y yyOffset ] [Svg.text ((toString <| yy) ++ " : " ++ (toString <| xx))]   
   ]

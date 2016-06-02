@@ -73,9 +73,9 @@ update msg ({board, activeBlock, level, pieces} as model) =
             rowOffset = List.length <| List.filter (\fr -> r < fr) fullRows
           in 
             if List.member r fullRows then
-              acc
+              { acc | outgoing = Dict.insert (r, c) (Just ((r,c), 1)) acc.outgoing }
             else
-              let nr = r+rowOffset in
+              let nr = r+rowOffset in -- nr -> new row
                 { acc 
                 | pieces = Dict.insert (nr, c) (Just ((nr, c), 1)) acc.pieces
                 , rows = Dict.update nr maybeAddOne acc.rows
@@ -86,6 +86,7 @@ update msg ({board, activeBlock, level, pieces} as model) =
             foldOverModel
               { model
               | rows = Dict.empty
+              , outgoing = Dict.empty
               , pieces = Dict.empty
               } model.pieces 
           => Cmd.none

@@ -21,6 +21,7 @@ type alias Model =
   { board : Board
   , pieces : Board
   , ghostPieces : Board
+  , outgoing : Board
   , activeBlock : Maybe Block
   , mouse : Maybe Mouse.Position  
   , resolution : Maybe Window.Size

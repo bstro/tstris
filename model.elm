@@ -41,6 +41,7 @@ emptyModel : Model
 emptyModel = 
   { board = emptyBoard
   , pieces = emptyPieces
+  , outgoing = emptyPieces
   , ghostPieces = emptyPieces
   , activeBlock = Nothing
   , mouse = Nothing  
