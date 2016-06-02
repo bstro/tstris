@@ -61,12 +61,12 @@ update msg ({board, activeBlock, level, pieces} as model) =
       
     ClearRows ->
       let
-        fullRows = 
-          List.map fst 
-            <| List.filter (\(_, s) -> s == 10) -- filter out all rows without 10 blocks
-            <| List.reverse 
-            <| Dict.toList
-            <| model.rows
+        fullRows =
+          model.rows
+          |> Dict.toList
+          |> List.reverse
+          |> List.filter (\(_, s) -> s == 10) -- filter out all rows without 10 blocks
+          |> List.map fst
             
         foldOverModel (r,c) v acc =
           let 
