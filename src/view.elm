@@ -13,10 +13,11 @@ import Utilities exposing (..)
 
 view : Model -> Svg Msg
 view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
+  -- let log = Debug.log "activeBlock is" activeBlock in
   case resolution of
     Just ({width, height} as res) ->
       case activeBlock of
-        Just (((r,c), t) as block) ->
+        Just block ->
           let
             w  = toString <| width
             h  = toString <| height  

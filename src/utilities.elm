@@ -16,32 +16,34 @@ maybeAddOne mV =
     _ -> Just 1    
 
 
--- need a function called lowestBrickOnBoard 
--- ... or getFirstAvailableBrick and map (r,_) to that rather than 0 (dumb)
+collisionsAtRow : Board -> Block -> Int -> Bool
+collisionsAtRow pieces (((r,c), t) as block) row =
+  let 
+    bricks = blockToBricks ((row,c), t)
+  in
+    collidesWithPieces pieces bricks || collidesWithGround bricks
+    
 
--- ghostifyBrick : Board -> Brick -> Brick
--- ghostifyBrick pieces (((r,c), tetrimino) as activeBlock) =
-  
 
 firstAvailableRow : Board -> Block -> Int
-firstAvailableRow pieces (((r,c), t) as b) =
+firstAvailableRow pieces block =
   let
     loop row =
-      let
-        pieceCollisions = collidesWithPieces pieces ((row, c), t)
-        groundCollisions = collidesWithGround ((row, c), t)
-      in
-        if pieceCollisions || groundCollisions then
-          loop (row-1)
-        else row
+      let collisions = collisionsAtRow pieces block row in
+      case collisions of
+        True -> loop (row-1)
+        _ -> row
+  
   in loop h
 
-ghostifyBlock : Board -> Block -> List Brick
-ghostifyBlock pieces (((r,c), t) as b) =
-  List.map (\(pos, i) -> (pos, 10))
-  <|
-  blockToBricks ((firstAvailableRow pieces b, c), t)
 
+ghostifyBlock : Board -> Block -> List Brick
+ghostifyBlock pieces (((_,c), t) as block) =
+  let 
+    r = firstAvailableRow pieces block  
+  in
+    blockToBricks ((r,c),t)
+    
  
 maybeBrickToBrick : Position -> Maybe Brick -> Brick
 maybeBrickToBrick pos mB =
@@ -67,27 +69,16 @@ blocksToBricks : List Block -> List Brick
 blocksToBricks blocks = List.concatMap blockToBricks blocks
 
 
-collidesWithWalls : Block -> Bool
-collidesWithWalls (gRC, points) =
-  let 
-    globals = List.map (\lRC -> localToGlobalCoords lRC gRC) points
-  in List.any (\(r, c) -> 
-    c == 0 || c > w
-  ) globals 
+collidesWithSides : List Brick -> Bool
+collidesWithSides bricks = List.any (\((r, c), _) ->  c == 0 || c > w) bricks 
 
 
-collidesWithGround : Block -> Bool
-collidesWithGround (gRC, points) =
-  let 
-    globals = List.map (\lRC -> localToGlobalCoords lRC gRC) points
-  in List.any (\(r, c) ->  r > h) globals
+collidesWithGround : List Brick -> Bool
+collidesWithGround bricks = List.any (\((r, c), _) ->  r > h) bricks
 
 
-collidesWithPieces : Board -> Block -> Bool
-collidesWithPieces pieces (gRC, points) =  
-  let 
-    globals = List.map (\lRC -> localToGlobalCoords lRC gRC) points
-  in List.any (\g -> Dict.member g pieces) globals
+collidesWithPieces : Board -> List Brick -> Bool
+collidesWithPieces pieces bricks = List.any (\(g, _) -> Dict.member g pieces) bricks
 
 
 localToGlobalCoords : Position -> Position -> Position

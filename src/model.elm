@@ -22,11 +22,12 @@ setPiece board (gRC, t) =
 
 
 setActivePiece : Model -> Position -> Tetrimino -> Model
-setActivePiece ({activeBlock} as model) ((r,c) as p) t =
-  if collidesWithWalls (p, t) then
+setActivePiece model (r,c) t =
+  let bricks = blockToBricks ((r,c), t) in
+  if collidesWithSides bricks then
     model
   else
-    { model | activeBlock = Just (p, t) }
+    { model | activeBlock = Just ((r,c), t) }
 
 
 getPiece : Int -> Tetrimino

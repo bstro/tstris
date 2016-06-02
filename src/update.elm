@@ -41,20 +41,23 @@ update msg ({board, activeBlock, pieces} as model) =
 
     CheckStep next (pr,pc) ->
       case next.activeBlock of
-        Just ((((cr, cc), mb) as nextBlock)) ->
+        Just ((((cr, cc), t) as nextBlock)) ->
           let
-            coords = blockToBricks ((pr,pc), mb)
+            -- following three lines are for building up `rows` incrementally
+            coords = blockToBricks ((pr, pc), t)
             bricksToInts = List.map (\((pr, _), _) -> pr) coords
             rows = List.foldl (\cur acc -> Dict.update cur maybeAddOne acc) model.rows bricksToInts
+            
+            nextPositionCoords = blockToBricks ((cr, cc), t)
           in
-
-          if collidesWithPieces pieces nextBlock || collidesWithGround nextBlock then
+          
+          if collidesWithPieces pieces nextPositionCoords || collidesWithGround nextPositionCoords then
             if cc-1 == pc || cc+1 == pc then -- if horizontal move collision
               model => Cmd.none
             else
               { model
               | rows = rows
-              , pieces = (setPiece pieces ((pr, pc), mb))
+              , pieces = (setPiece pieces ((pr, pc), t))
               , activeBlock = Nothing
               } => Task.perform never (\_ -> RandomPiece) (succeed always)
 
@@ -114,11 +117,12 @@ update msg ({board, activeBlock, pieces} as model) =
                 setActivePiece model (r, c+1) t
 
               40 ->
-                setActivePiece model (r, c) (List.map rotateL t)
-
-              32 ->
                 let tmp = setActivePiece model (r+1, c) t -- sp
                 in  { tmp | skipNextTick = True }
+
+              32 ->
+                let fAR = firstAvailableRow model.pieces ((r,c),t) in 
+                setActivePiece model (fAR, c) t
 
               _  ->
                 model
