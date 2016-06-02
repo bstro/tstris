@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Svg exposing (..)
+import Svg.Lazy exposing (..)
 import Svg.Attributes as Attr exposing (..)
 import Dict exposing (values)
 import List
@@ -26,10 +27,10 @@ view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
               , Attr.height (h ++ "px")
               , Attr.style "overflow: hidden; position: absolute;" 
               ]              
-              [ layout <| Dict.values <| Dict.map maybeBrickToBrick emptyBoard
-              , layout <| Dict.values <| Dict.map maybeBrickToBrick pieces
-              , layout <| blockToBricks <| block 
-              , layout <| List.map ghostifyBrick <| blockToBricks <| block
+              [ lazy layout (Dict.values <| Dict.map maybeBrickToBrick emptyBoard) -- empties
+              , lazy layout (Dict.values <| Dict.map maybeBrickToBrick pieces) -- placed pieces
+              , lazy layout (blockToBricks <| block) -- active block
+              , lazy layout (List.map ghostifyBrick <| blockToBricks <| block) -- ghost block
               ]
         Nothing -> Svg.text "no activeblock"
     Nothing -> Svg.text "no resolution" 

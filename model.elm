@@ -9,7 +9,7 @@ import List.Extra exposing (andThen)
 
 setPiece : Board -> Block -> Board
 setPiece board (gRC, t) =
-  let 
+  let
     globals = List.map (\lRC -> localToGlobalCoords lRC gRC) t
     loop acc list =
       case list of
@@ -18,17 +18,17 @@ setPiece board (gRC, t) =
   in
     let
       newBoard = loop board globals
-    in newBoard 
-  
+    in newBoard
+
 
 setActivePiece : Model -> Position -> Tetrimino -> Model
 setActivePiece ({activeBlock} as model) ((r,c) as p) t =
   if collidesWithWalls (p, t) then
-    model 
+    model
   else
     { model | activeBlock = Just (p, t) }
-    
-  
+
+
 getPiece : Int -> Tetrimino
 getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
@@ -38,21 +38,21 @@ gravity (r, c) = (r+1, c)
 
 
 emptyModel : Model
-emptyModel = 
+emptyModel =
   { board = emptyBoard
   , pieces = emptyPieces
   , outgoing = emptyPieces
   , ghostPieces = emptyPieces
   , activeBlock = Nothing
-  , mouse = Nothing  
+  , mouse = Nothing
   , resolution = Nothing
   , timeout = 0
-  , level = 500
   , skipNextTick = False
   , rows = Dict.empty
-  } 
-   
-   
+  , cleared = 0
+  }
+
+
 emptyBoard : Board
 emptyBoard =
   Dict.fromList <| [1..h] `andThen` \x -> [1..w] `andThen` \y -> [(x => y => Nothing)]
@@ -63,7 +63,7 @@ emptyPieces = fromList []
 
 
 tetriminos : List Tetrimino
-tetriminos = [i,l,j,s,z,o,t] 
+tetriminos = [i,l,j,s,z,o,t]
 
 
 i : Tetrimino
@@ -82,10 +82,10 @@ l =
 
 
 j : Tetrimino
-j = 
+j =
   [
     (-1,-1) ,
-    (-1, 0) , (0, 0) , (1, 0) 
+    (-1, 0) , (0, 0) , (1, 0)
   ]
 
 
@@ -101,7 +101,7 @@ z : Tetrimino
 z =
   [
     (-1,-1) , (0,-1)
-            , (0, 0) , (1, 0) 
+            , (0, 0) , (1, 0)
   ]
 
 

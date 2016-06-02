@@ -26,9 +26,9 @@ type alias Model =
   , mouse : Maybe Mouse.Position  
   , resolution : Maybe Window.Size
   , timeout : Int 
-  , level : Int
   , skipNextTick : Bool
   , rows : Dict Int Int
+  , cleared : Int
   } 
 
 type Msg
@@ -44,5 +44,4 @@ type Msg
   | Tick Time.Time
   | RandomPiece
   | InsertPiece Int
-  | NextLevel
   
