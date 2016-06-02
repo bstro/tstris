@@ -1,3 +1,4 @@
 .vscode
 elm-stuff
 .DS_Store
+*.html
