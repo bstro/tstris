@@ -33,10 +33,6 @@ getPiece : Int -> Tetrimino
 getPiece x = Maybe.withDefault i (getAt x tetriminos)
 
 
-gravity : Position -> Position
-gravity (r, c) = (r+1, c)
-
-
 emptyModel : Model
 emptyModel =
   { board = emptyBoard

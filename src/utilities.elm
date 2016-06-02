@@ -6,6 +6,10 @@ import Dict exposing (Dict)
 import Types exposing (..)
 
 
+gravity : Position -> Position
+gravity (r, c) = (r+1, c)
+
+
 maybeAddOne mV =
   case mV of
     Just v -> Just (v+1)
@@ -14,9 +18,30 @@ maybeAddOne mV =
 
 -- need a function called lowestBrickOnBoard 
 -- ... or getFirstAvailableBrick and map (r,_) to that rather than 0 (dumb)
-ghostifyBrick : Brick -> Brick
-ghostifyBrick ((r,c), b) = ((h+1, c), w)
+
+-- ghostifyBrick : Board -> Brick -> Brick
+-- ghostifyBrick pieces (((r,c), tetrimino) as activeBlock) =
   
+
+firstAvailableRow : Board -> Block -> Int
+firstAvailableRow pieces (((r,c), t) as b) =
+  let
+    loop row =
+      let
+        pieceCollisions = collidesWithPieces pieces ((row, c), t)
+        groundCollisions = collidesWithGround ((row, c), t)
+      in
+        if pieceCollisions || groundCollisions then
+          loop (row-1)
+        else row
+  in loop h
+
+ghostifyBlock : Board -> Block -> List Brick
+ghostifyBlock pieces (((r,c), t) as b) =
+  List.map (\(pos, i) -> (pos, 10))
+  <|
+  blockToBricks ((firstAvailableRow pieces b, c), t)
+
  
 maybeBrickToBrick : Position -> Maybe Brick -> Brick
 maybeBrickToBrick pos mB =

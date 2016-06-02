@@ -29,8 +29,8 @@ view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
               ]              
               [ lazy layout (Dict.values <| Dict.map maybeBrickToBrick emptyBoard) -- empties
               , lazy layout (Dict.values <| Dict.map maybeBrickToBrick pieces) -- placed pieces
-              , lazy layout (blockToBricks <| block) -- active block
-              , lazy layout (List.map ghostifyBrick <| blockToBricks <| block) -- ghost block
+              , lazy layout <| ghostifyBlock pieces block
+              , lazy layout <| blockToBricks block
               ]
         Nothing -> Svg.text "no activeblock"
     Nothing -> Svg.text "no resolution" 
@@ -48,7 +48,7 @@ renderBrick ((yy,xx), v) =
     hx =
       case v of
         1     -> "#2C313A"
-        -- 10    -> "#E8C0ED"
+        10    -> "#E8C0ED"
         4     -> "#0a70f5"
         _     -> "#E6E6E6"
   in
@@ -64,5 +64,5 @@ renderBrick ((yy,xx), v) =
   , Attr.height "0.95"
   ] []
   
-  , Svg.text' [ textAnchor "middle", fontWeight "bold", fontFamily "Helvetica", fill "black", fontSize "0.25", x xxOffset, y yyOffset ] [Svg.text ((toString <| yy) ++ " : " ++ (toString <| xx))]   
+  -- , Svg.text' [ textAnchor "middle", fontWeight "bold", fontFamily "Helvetica", fill "black", fontSize "0.25", x xxOffset, y yyOffset ] [Svg.text ((toString <| yy) ++ " : " ++ (toString <| xx))]   
   ]
