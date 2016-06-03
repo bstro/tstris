@@ -70,7 +70,6 @@ renderBrick ((yy,xx), v) =
   , y (toString <| yy)
   , Attr.width "0.95"
   , Attr.height "0.95"
-  ] []
-  
+  ] []  
   -- , Svg.text' [ textAnchor "middle", fontWeight "bold", fontFamily "Helvetica", fill "black", fontSize "0.25", x xxOffset, y yyOffset ] [Svg.text ((toString <| yy) ++ " : " ++ (toString <| xx))]   
   ]

@@ -23,7 +23,6 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
     [ Window.resizes Resize 
-    -- , Mouse.moves MouseMove
     , AnimationFrame.diffs Tick
     , Keyboard.downs KeyDown
     ]
