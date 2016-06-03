@@ -34,13 +34,12 @@ type Msg
   = NoOp
   | Init Window.Size
   | Resize Window.Size
-  | CheckStep Model Position-- model is `next` model in this case
+  | CheckStep Model Position
   | ClearRows
   | KeyDown KeyCode 
   | Step (Block, Bool)
-  | RotateL Block
-  | RotateR Block
+  | Rotate Block
   | Tick Time.Time
-  | RandomPiece
   | InsertPiece Int
+  | RandomPiece
   

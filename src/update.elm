@@ -138,12 +138,8 @@ update msg ({board, activeBlock, pieces} as model) =
 
         Nothing -> model => Cmd.none
 
-    RotateR (p, t)
+    Rotate (p, t)
     -> setActivePiece model p (List.map rotateR t)
-    => Cmd.none
-
-    RotateL (p, t)
-    -> setActivePiece model p (List.map rotateL t)
     => Cmd.none
 
     Resize newRes
