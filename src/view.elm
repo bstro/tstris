@@ -12,26 +12,34 @@ import Utilities exposing (..)
 
 
 view : Model -> Svg Msg
-view ({board, activeBlock, resolution, pieces, ghostPieces} as model) =
+view ({dead, board, activeBlock, resolution, pieces, ghostPieces} as model) =
   case resolution of
     Just ({width, height} as res) ->
       case activeBlock of
         Just block ->
           let
             w  = toString <| width
-            h  = toString <| height  
-          in
-            svg 
-              [ viewBox "0 0 12 24" -- for some reason this centers it. where are the two extra columns coming from?
-              , Attr.width (w ++ "px")
-              , Attr.height (h ++ "px")
-              , Attr.style "overflow: hidden; position: absolute;" 
-              ]              
+            h  = toString <| height
+            
+            viewbox elements =
+              svg 
+                [ viewBox "0 0 12 24" -- for some reason this centers it. where are the two extra columns coming from?
+                , Attr.width (w ++ "px")
+                , Attr.height (h ++ "px")
+                , Attr.style "overflow: hidden; position: absolute;" 
+                ]
+                elements
+            
+            rendered =
               [ lazy layout (Dict.values <| Dict.map maybeBrickToBrick emptyBoard) -- empties
               , lazy layout (Dict.values <| Dict.map maybeBrickToBrick pieces) -- placed pieces
               , lazy layout <| ghostifyBlock pieces block
               , lazy layout <| blockToBricks block
               ]
+          in
+            if dead then viewbox [ Svg.text' [ textAnchor "middle", fontFamily "monospace", fontWeight "bold", fontSize "1", x "6", y "12" ] [Svg.text "Game Over"] ]
+            else viewbox rendered
+                            
         Nothing -> Svg.text "no activeblock"
     Nothing -> Svg.text "no resolution" 
 

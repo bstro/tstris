@@ -5,6 +5,9 @@ import Dict exposing (Dict)
 import Types exposing (..)
 
 
+fontStack = "Avenir Next, Avenir, Helvetica Neue, Helvetica, Arial"
+
+
 gravity : Position -> Position
 gravity (r, c) = (r+1, c)
 

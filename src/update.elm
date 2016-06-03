@@ -28,16 +28,23 @@ update msg ({board, activeBlock, pieces} as model) =
       then { model | timeout = model.timeout+t } => Cmd.none
       else { model | timeout = 0 } =>
         case model.activeBlock of
-          Just b -> Task.perform never Step (succeed b)
+          Just b ->
+            let state = collisionsAtRow pieces b 0 in  
+            Task.perform never Step (succeed (b, state))
+          
           Nothing -> Cmd.none
 
-    Step (p, t) ->
-      case model.skipNextTick of
-        True -> { model | skipNextTick = False } => Cmd.none
+    Step ((p, t), state) ->
+      case state of
+        True ->
+          { model | dead = True } => Cmd.none
         False ->
-          let next = setActivePiece model (gravity p) t
-          in
-          model => Task.perform never (\_ -> CheckStep next p) (succeed always)
+          case model.skipNextTick of
+            True -> { model | skipNextTick = False } => Cmd.none
+            False ->
+              let next = setActivePiece model (gravity p) t
+              in
+              model => Task.perform never (\_ -> CheckStep next p) (succeed always)
 
     CheckStep next (pr,pc) ->
       case next.activeBlock of

@@ -46,6 +46,7 @@ emptyModel =
   , skipNextTick = False
   , rows = Dict.empty
   , cleared = 0
+  , dead = False
   }
 
 

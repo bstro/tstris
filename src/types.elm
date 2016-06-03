@@ -27,6 +27,7 @@ type alias Model =
   , skipNextTick : Bool
   , rows : Dict Int Int
   , cleared : Int
+  , dead : Bool
   } 
 
 type Msg
@@ -36,7 +37,7 @@ type Msg
   | CheckStep Model Position-- model is `next` model in this case
   | ClearRows
   | KeyDown KeyCode 
-  | Step Block
+  | Step (Block, Bool)
   | RotateL Block
   | RotateR Block
   | Tick Time.Time
