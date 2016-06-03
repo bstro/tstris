@@ -1,6 +1,5 @@
 module Utilities exposing (..)
 
-import Color exposing (..)
 import Dict exposing (Dict)
 
 import Types exposing (..)
@@ -17,31 +16,31 @@ maybeAddOne mV =
 
 
 collisionsAtRow : Board -> Block -> Int -> Bool
-collisionsAtRow pieces (((r,c), t) as block) row =
+collisionsAtRow pieces (((_,c), t) as block) r =
   let 
-    bricks = blockToBricks ((row,c), t)
+    bricks = blockToBricks ((r,c), t)
   in
     collidesWithPieces pieces bricks || collidesWithGround bricks
     
 
--- instead of finding the first available row,
--- we must find the first row with an unobstructed path.
-firstAvailableRow : Board -> Block -> Int
-firstAvailableRow pieces block =
+firstUnobstructedRow : Board -> Block -> Int
+firstUnobstructedRow pieces block =
   let
-    loop row =
-      let collisions = collisionsAtRow pieces block row in
-      case collisions of
-        True -> loop (row-1)
-        _ -> row
-  
-  in loop h
-
+    loop r =
+      if r == h then h
+      else
+        let collisions = collisionsAtRow pieces block (r+1) in 
+          -- if the next move is a collision, place in current row
+          case collisions of
+            False -> loop (r+1)
+            _ -> r
+  in loop 1
+   
 
 ghostifyBlock : Board -> Block -> List Brick
 ghostifyBlock pieces (((_,c), t) as block) =
   let 
-    r = firstAvailableRow pieces block  
+    r = firstUnobstructedRow pieces block  
   in
     blockToBricks ((r,c),t)
     

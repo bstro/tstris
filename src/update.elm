@@ -121,8 +121,8 @@ update msg ({board, activeBlock, pieces} as model) =
                 in  { tmp | skipNextTick = True }
 
               32 ->
-                let fAR = firstAvailableRow model.pieces ((r,c),t) in 
-                setActivePiece model (fAR, c) t
+                let fOR = firstUnobstructedRow model.pieces ((r,c),t) in 
+                setActivePiece model (fOR, c) t
 
               _  ->
                 model
